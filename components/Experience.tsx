@@ -18,7 +18,7 @@ const Experience: React.FC = () => {
             className="relative pl-8 md:pl-0"
           >
             {/* Timeline connector for Desktop */}
-            <div className="hidden md:block absolute left-[28px] top-[28px] bottom-[-48px] w-0.5 bg-slate-800 last:hidden"></div>
+            <div className={`hidden md:block absolute left-[28px] top-[28px] bottom-[-48px] w-0.5 bg-slate-800 ${index === EXPERIENCES.length - 1 ? 'hidden' : ''}`}></div>
 
             <div className="flex flex-col md:flex-row gap-8">
               {/* Icon & Date - Desktop */}

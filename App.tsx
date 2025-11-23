@@ -13,8 +13,6 @@ const App: React.FC = () => {
       <main className="space-y-0">
         <Hero />
         <div className="relative bg-slate-950">
-            {/* Subtle separator gradient */}
-            <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-slate-950 to-transparent pointer-events-none z-10"></div>
             <Experience />
             <Education />
             <Skills />
