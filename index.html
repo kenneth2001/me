@@ -17,20 +17,26 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              // Redefining 'primary' to a Violet palette
+              // HK Neon Palette
+              neon: {
+                blue: '#00f3ff',    // Cyan-ish
+                pink: '#ff00ff',    // Magenta
+                purple: '#bc13fe',  // Electric Purple
+                green: '#0aff00',   // Matrix/Neon Green
+              },
+              // Existing Palettes
               primary: {
                 50: '#f5f3ff',
                 100: '#ede9fe',
                 200: '#ddd6fe',
                 300: '#c4b5fd',
                 400: '#a78bfa',
-                500: '#8b5cf6', // Main Violet
+                500: '#8b5cf6',
                 600: '#7c3aed',
                 700: '#6d28d9',
                 800: '#5b21b6',
                 900: '#4c1d95',
               },
-              // Redefining 'slate' to a Zinc palette for a truer, sharper dark mode
               slate: {
                 50: '#fafafa',
                 100: '#f4f4f5',
@@ -41,9 +47,30 @@
                 600: '#52525b',
                 700: '#3f3f46',
                 800: '#27272a',
-                850: '#202025', // Custom dark shade
+                850: '#202025',
                 900: '#18181b',
-                950: '#09090b', // Deepest Zinc
+                950: '#09090b',
+              }
+            },
+            boxShadow: {
+              'neon-blue': '0 0 5px theme("colors.neon.blue"), 0 0 20px theme("colors.neon.blue")',
+              'neon-pink': '0 0 5px theme("colors.neon.pink"), 0 0 20px theme("colors.neon.pink")',
+              'neon-card': '0 0 15px rgba(139, 92, 246, 0.15)',
+            },
+            animation: {
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'flicker': 'flicker 3s infinite alternate',
+            },
+            keyframes: {
+              flicker: {
+                '0%, 19%, 21%, 23%, 25%, 54%, 56%, 100%': {
+                  opacity: 1,
+                  filter: 'drop-shadow(0 0 4px theme("colors.neon.pink"))'
+                },
+                '20%, 24%, 55%': {
+                  opacity: 0.5,
+                  filter: 'none'
+                },
               }
             }
           }
@@ -52,8 +79,11 @@
     </script>
     <style>
       body {
-        background-color: #09090b; /* Zinc-950 */
-        color: #fafafa; /* Zinc-50 */
+        background-color: #09090b;
+        color: #fafafa;
+        background-image: 
+          radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.08), transparent 25%),
+          radial-gradient(circle at 85% 30%, rgba(255, 0, 255, 0.05), transparent 25%);
       }
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
@@ -68,6 +98,14 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #3f3f46;
+      }
+      
+      /* Neon Text Utilities */
+      .text-neon-blue {
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+      }
+      .text-neon-pink {
+        text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
       }
     </style>
   <script type="importmap">

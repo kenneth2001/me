@@ -6,9 +6,9 @@ export const PERSONAL_INFO = {
   role: "Data Scientist & AI Engineer",
   headline: "Turning data into meaningful insights through AI, LLMs, and operational optimization.",
   location: "Hong Kong / London",
-  email: "kenneth.wan@example.com", // Placeholder
-  linkedin: "https://linkedin.com/in/kennethwan", // Placeholder
-  github: "https://github.com/kennethwan", // Placeholder
+  email: "yeekiiiiii@protonmail.com",
+  linkedin: "https://www.linkedin.com/in/yee-ki-wan/",
+  github: "https://github.com/kenneth2001",
 };
 
 export const EXPERIENCES: Job[] = [

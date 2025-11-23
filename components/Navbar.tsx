@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Github, Linkedin, Mail } from 'lucide-react';
 import { PERSONAL_INFO } from '../constants';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -8,11 +9,21 @@ const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
 
   const navLinks = [
     { name: 'About', href: '#about' },
@@ -21,87 +32,173 @@ const Navbar: React.FC = () => {
     { name: 'Skills', href: '#skills' },
   ];
 
+  const socialLinks = [
+    { icon: <Mail size={20} />, href: `mailto:${PERSONAL_INFO.email}`, label: 'Email', color: 'hover:text-neon-blue' },
+    { icon: <Github size={20} />, href: PERSONAL_INFO.github, label: 'Github', color: 'hover:text-neon-pink' },
+    { icon: <Linkedin size={20} />, href: PERSONAL_INFO.linkedin, label: 'LinkedIn', color: 'hover:text-neon-blue' },
+  ];
+
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-slate-950/90 backdrop-blur-md shadow-lg border-b border-slate-800' : 'bg-transparent'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <div className="flex-shrink-0 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
-            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-              {PERSONAL_INFO.name}
-            </span>
-          </div>
-          
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-6">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  className="text-slate-300 hover:text-white hover:bg-slate-800/50 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {link.name}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          <div className="hidden md:flex items-center space-x-6">
-             {/* Social Icons for Desktop */}
-             <div className="flex items-center space-x-4 pl-6 border-l border-slate-800">
-               <a href={`mailto:${PERSONAL_INFO.email}`} className="text-slate-400 hover:text-violet-400 transition-colors transform hover:scale-110" aria-label="Email">
-                 <Mail size={20} />
-               </a>
-               <a href={PERSONAL_INFO.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-violet-400 transition-colors transform hover:scale-110" aria-label="Github">
-                 <Github size={20} />
-               </a>
-               <a href={PERSONAL_INFO.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-violet-400 transition-colors transform hover:scale-110" aria-label="LinkedIn">
-                 <Linkedin size={20} />
-               </a>
-             </div>
-          </div>
-
-          <div className="-mr-2 flex md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 focus:outline-none"
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        className={`fixed w-full z-50 transition-all duration-300 ${
+          scrolled 
+            ? 'bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60 shadow-lg shadow-neon-purple/5' 
+            : 'bg-transparent py-2 md:py-4'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Logo */}
+            <div 
+              className="flex-shrink-0 cursor-pointer group" 
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setIsOpen(false);
+              }}
             >
-              {isOpen ? <X size={28} /> : <Menu size={28} />}
-            </button>
-          </div>
-        </div>
-      </div>
+              <div className="relative">
+                <span className="text-xl md:text-2xl font-bold text-white tracking-tight relative z-10 transition-all duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-neon-blue group-hover:to-neon-purple">
+                  {PERSONAL_INFO.name}
+                  <span className="text-neon-blue group-hover:text-neon-pink transition-colors">.</span>
+                </span>
+                <span className="absolute -inset-2 rounded-lg bg-neon-blue/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+              </div>
+            </div>
 
-      {/* Mobile menu */}
-      {isOpen && (
-        <div className="md:hidden bg-slate-950 border-b border-slate-800 shadow-xl">
-          <div className="px-4 pt-4 pb-6 space-y-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className="text-slate-300 hover:text-white hover:bg-slate-800 block px-4 py-3 rounded-md text-base font-medium"
+            {/* Desktop Navigation */}
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-2">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    className="relative px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors group overflow-hidden rounded-md"
+                  >
+                    <span className="relative z-10">{link.name}</span>
+                    <span className="absolute inset-0 bg-slate-800/0 group-hover:bg-slate-800/50 transition-colors duration-300 rounded-md"></span>
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-neon-blue to-neon-purple transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Desktop Social Icons */}
+            <div className="hidden md:flex items-center space-x-6">
+              <div className="flex items-center space-x-5 pl-6 border-l border-slate-800/50">
+                {socialLinks.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`text-slate-400 transition-all transform hover:scale-110 hover:-translate-y-0.5 ${social.color} hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]`}
+                    aria-label={social.label}
+                  >
+                    {social.icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="-mr-2 flex md:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="relative inline-flex items-center justify-center p-2 rounded-md text-slate-300 hover:text-white focus:outline-none z-50"
               >
-                {link.name}
-              </a>
-            ))}
-            
-            {/* Mobile Social Links */}
-            <div className="mt-6 pt-6 border-t border-slate-800 flex justify-center space-x-8">
-               <a href={`mailto:${PERSONAL_INFO.email}`} className="text-slate-300 hover:text-violet-400">
-                 <Mail size={24} />
-               </a>
-               <a href={PERSONAL_INFO.github} target="_blank" rel="noreferrer" className="text-slate-300 hover:text-violet-400">
-                 <Github size={24} />
-               </a>
-               <a href={PERSONAL_INFO.linkedin} target="_blank" rel="noreferrer" className="text-slate-300 hover:text-violet-400">
-                 <Linkedin size={24} />
-               </a>
+                <span className="sr-only">Open main menu</span>
+                <AnimatePresence mode="wait">
+                    {isOpen ? (
+                        <motion.div
+                            key="close"
+                            initial={{ rotate: -90, opacity: 0 }}
+                            animate={{ rotate: 0, opacity: 1 }}
+                            exit={{ rotate: 90, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <X size={28} />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="menu"
+                            initial={{ rotate: 90, opacity: 0 }}
+                            animate={{ rotate: 0, opacity: 1 }}
+                            exit={{ rotate: -90, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <Menu size={28} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+              </button>
             </div>
           </div>
         </div>
-      )}
-    </nav>
+      </motion.nav>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
+            animate={{ opacity: 1, clipPath: "circle(150% at 100% 0%)" }}
+            exit={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
+            transition={{ type: "spring", stiffness: 30, damping: 15 }}
+            className="fixed inset-0 z-40 bg-slate-950/98 backdrop-blur-xl md:hidden flex flex-col items-center justify-center"
+          >
+            {/* Background elements for mobile menu */}
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-[80px]"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-neon-blue/10 rounded-full blur-[80px]"></div>
+
+            <nav className="flex flex-col items-center space-y-8 z-10 w-full px-8">
+              {navLinks.map((link, index) => (
+                <motion.div
+                  key={link.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 + 0.2 }}
+                  className="w-full text-center"
+                >
+                  <a
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    className="block w-full text-4xl font-bold text-slate-400 hover:text-white transition-all hover:scale-105 active:scale-95"
+                  >
+                    <span className="bg-clip-text hover:text-transparent hover:bg-gradient-to-r hover:from-neon-blue hover:to-neon-pink transition-all duration-300">
+                        {link.name}
+                    </span>
+                  </a>
+                </motion.div>
+              ))}
+            </nav>
+
+            <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.5 }}
+                 className="absolute bottom-20 flex justify-center space-x-10 w-full z-10"
+              >
+                {socialLinks.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`text-slate-400 hover:text-white transform hover:scale-125 transition-all duration-300 ${social.color}`}
+                  >
+                    {/* Increase size for mobile */}
+                    {React.cloneElement(social.icon as React.ReactElement<any>, { size: 32 })}
+                  </a>
+                ))}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
