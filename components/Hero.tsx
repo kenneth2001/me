@@ -6,13 +6,7 @@ import { PERSONAL_INFO } from '../constants';
 const Hero: React.FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-24 pb-12 overflow-hidden bg-slate-950" id="about">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-900/10 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-fuchsia-900/10 rounded-full blur-[120px]"></div>
-        <div className="absolute top-[20%] right-[20%] w-[20%] h-[20%] bg-indigo-900/10 rounded-full blur-[100px]"></div>
-      </div>
-
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           
@@ -28,15 +22,15 @@ const Hero: React.FC = () => {
                 Available for Data Science Roles
               </span>
               <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-                Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">{PERSONAL_INFO.name.split(' ')[0]}</span>
+                Hi, I'm <span className="text-violet-400">{PERSONAL_INFO.name.split(' ')[0]}</span>
               </h1>
               <p className="text-xl md:text-2xl text-slate-400 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
                 {PERSONAL_INFO.headline}
               </p>
               <div className="text-slate-400 mb-10 max-w-lg mx-auto lg:mx-0 flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2">
-                 <span className="flex items-center"><span className="text-fuchsia-500 mr-2">✓</span> GenAI & LLMs</span>
-                 <span className="flex items-center"><span className="text-fuchsia-500 mr-2">✓</span> RAG Pipelines</span>
-                 <span className="flex items-center"><span className="text-fuchsia-500 mr-2">✓</span> Predictive Modeling</span>
+                 <span className="flex items-center"><span className="text-violet-500 mr-2">✓</span> GenAI & LLMs</span>
+                 <span className="flex items-center"><span className="text-violet-500 mr-2">✓</span> RAG Pipelines</span>
+                 <span className="flex items-center"><span className="text-violet-500 mr-2">✓</span> Predictive Modeling</span>
               </div>
               
               <div className="flex flex-wrap justify-center lg:justify-start gap-4">
@@ -58,7 +52,7 @@ const Hero: React.FC = () => {
             className="flex-1 w-full max-w-lg lg:max-w-xl"
           >
             <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                {/* Removed the background gradient glow here */}
                 
                 <div className="relative bg-slate-900 rounded-xl border border-slate-800 shadow-2xl overflow-hidden">
                     {/* Window Header */}
@@ -81,17 +75,17 @@ const Hero: React.FC = () => {
                             <code className="block text-slate-500 mb-4"># Personal Highlights</code>
                             
                             <code className="block mb-2">
-                                <span className="text-violet-400">role</span> = <span className="text-emerald-400">"Data Scientist & AI Engineer"</span>
+                                <span className="text-violet-400">role</span> = <span className="text-amber-300">"Data Scientist & AI Engineer"</span>
                             </code>
 
                             <code className="block mb-2">
                                 <span className="text-violet-400">education</span> = [
                             </code>
                             <code className="block pl-4">
-                                <span className="text-emerald-400">"MSc Distinction (Imperial)"</span>,
+                                <span className="text-amber-300">"MSc Distinction (Imperial)"</span>,
                             </code>
                             <code className="block pl-4">
-                                <span className="text-emerald-400">"First Class Honors (CUHK)"</span>
+                                <span className="text-amber-300">"First Class Honors (CUHK)"</span>
                             </code>
                             <code className="block mb-2">]</code>
 
@@ -99,10 +93,10 @@ const Hero: React.FC = () => {
                                 <span className="text-violet-400">key_skills</span> = [
                             </code>
                             <code className="block pl-4">
-                                <span className="text-emerald-400">"LLMs & GraphRAG"</span>,
+                                <span className="text-amber-300">"LLMs & GraphRAG"</span>,
                             </code>
                             <code className="block pl-4">
-                                <span className="text-emerald-400">"Data Engineering Pipelines"</span>
+                                <span className="text-amber-300">"Data Engineering Pipelines"</span>
                             </code>
                             <code className="block mb-2">]</code>
 
@@ -110,7 +104,7 @@ const Hero: React.FC = () => {
                                 <span className="text-slate-500"># Ready to contribute</span>
                             </code>
                             <code className="block">
-                                <span className="text-violet-400">status</span> = <span className="text-fuchsia-400">"Open for Opportunities"</span>
+                                <span className="text-violet-400">status</span> = <span className="text-amber-300">"Open for Opportunities"</span>
                             </code>
                         </pre>
                     </div>
