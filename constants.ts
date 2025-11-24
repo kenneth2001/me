@@ -4,8 +4,8 @@ export const PERSONAL_INFO = {
   name: "Kenneth Wan",
   fullName: "Yee Ki Wan (Kenneth)",
   role: "Data Scientist & AI Engineer",
-  headline: "Turning data into meaningful insights through AI, LLMs, and operational optimization.",
-  location: "Hong Kong / London",
+  headline: "Turning data into meaningful insights through AI, LLMs, and optimization.",
+  location: "Hong Kong",
   email: "yeekiiiiii@protonmail.com",
   linkedin: "https://www.linkedin.com/in/yee-ki-wan/",
   github: "https://github.com/kenneth2001",
@@ -98,23 +98,39 @@ export const EDUCATIONS: Education[] = [
 
 export const SKILLS: SkillCategory[] = [
   {
-    category: "Languages",
-    skills: ["Python", "JavaScript", "C", "Prolog", "SQL"]
+    category: "Multi-Agent Systems & LLMs",
+    skills: ["LangGraph", "LangChain"]
   },
   {
-    category: "AI & Data Science",
-    skills: ["PyTorch", "Tensorflow 2", "scikit-learn", "LangChain", "LangGraph", "GraphRAG", "Pandas", "NumPy", "Librosa", "Matplotlib", "Seaborn"]
+    category: "Deep Learning & Machine Learning",
+    skills: ["PyTorch", "scikit-learn", "Librosa"]
   },
   {
-    category: "Big Data & Database",
-    skills: ["PySpark", "Spark SQL", "Amazon Redshift", "PostgreSQL", "MongoDB", "MySQL", "Pgvector"]
+    category: "Data Analytics & Processing",
+    skills: ["Pandas", "NumPy", "BeautifulSoup"]
   },
   {
-    category: "ETL & Tools",
-    skills: ["Databricks", "dbt", "DBeaver", "Tableau", "Git", "Jira"]
+    category: "Big Data & Databases",
+    skills: ["Apache Spark (PySpark & Scala)", "PostgreSQL (pgvector)", "MongoDB", "MySQL", "SQL", "DBeaver"]
+  },
+  {
+    category: "BI & Data Visualization",
+    skills: ["Tableau", "Vividime"]
+  },
+  {
+    category: "Visualization Libraries",
+    skills: ["Matplotlib", "Seaborn"]
+  },
+  {
+    category: "Programming Languages",
+    skills: ["Python", "Scala", "JavaScript", "C", "Prolog"]
   },
   {
     category: "Web Development",
-    skills: ["React.js", "Node.js", "Express.js", "Mongoose", "Bootstrap", "Tailwind CSS"]
+    skills: ["React.js", "Node.js", "Express.js", "Mongoose", "Bootstrap"]
+  },
+  {
+    category: "Spoken Languages",
+    skills: ["English (Fluent)", "Cantonese (Native)"]
   }
 ];

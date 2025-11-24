@@ -10,14 +10,14 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ id, title, children, className = "" }) => {
   return (
-    <section id={id} className={`py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto ${className}`}>
+    <section id={id} className={`py-12 md:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto ${className}`}>
       {title && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-12"
+          className="mb-8 md:mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 relative inline-block">
             {title}

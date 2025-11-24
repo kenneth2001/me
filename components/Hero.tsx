@@ -5,7 +5,7 @@ import { PERSONAL_INFO } from '../constants';
 
 const Hero: React.FC = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-24 pb-32 overflow-hidden bg-slate-950" id="about">
+    <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 md:pt-24 md:pb-32 overflow-hidden bg-slate-950" id="about">
       
       {/* Background Glow Orbs */}
       <div className="absolute top-20 left-20 w-72 h-72 bg-primary-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
@@ -33,8 +33,8 @@ const Hero: React.FC = () => {
               </p>
               
               <div className="text-slate-400 mb-8 max-w-lg mx-auto lg:mx-0 flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2">
-                 <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> GenAI & LLMs</span>
-                 <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> RAG Pipelines</span>
+                 <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Multi-Agent Systems</span>
+                 <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Deep Learning</span>
                  <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Predictive Modeling</span>
               </div>
               
@@ -89,28 +89,20 @@ const Hero: React.FC = () => {
                             <code className="block text-slate-500 mb-4"># Personal Highlights</code>
                             
                             <code className="block mb-2">
-                                <span className="text-neon-purple">role</span> = <span className="text-amber-300">"Data Scientist & AI Engineer"</span>
+                                <span className="text-neon-purple">role</span> = <span className="text-amber-300">"Data Scientist"</span>
                             </code>
 
                             <code className="block mb-2">
-                                <span className="text-neon-purple">education</span> = [
+                                <span className="text-neon-purple">key_expertise</span> = [
                             </code>
                             <code className="block pl-4">
-                                <span className="text-amber-300">"MSc Distinction (Imperial)"</span>,
+                                <span className="text-amber-300">"Multi-Agent Systems"</span>,
                             </code>
                             <code className="block pl-4">
-                                <span className="text-amber-300">"First Class Honors (CUHK)"</span>
-                            </code>
-                            <code className="block mb-2">]</code>
-
-                            <code className="block mb-2">
-                                <span className="text-neon-purple">key_skills</span> = [
+                                <span className="text-amber-300">"Deep Learning"</span>,
                             </code>
                             <code className="block pl-4">
-                                <span className="text-amber-300">"LLMs & GraphRAG"</span>,
-                            </code>
-                            <code className="block pl-4">
-                                <span className="text-amber-300">"Data Engineering Pipelines"</span>
+                                <span className="text-amber-300">"Data Analytics"</span>
                             </code>
                             <code className="block mb-2">]</code>
 
