@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Github, Linkedin, Mail } from 'lucide-react';
+import { Menu, X, Github, Linkedin, Mail, Star } from 'lucide-react';
 import { PERSONAL_INFO } from '../constants';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onNavigate: (view: string) => void;
+  currentView: string;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentView }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -25,6 +30,26 @@ const Navbar: React.FC = () => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
+  const handleLinkClick = (href: string) => {
+    setIsOpen(false);
+    if (href.startsWith('#')) {
+      onNavigate('home');
+      // If we are already on home, scroll to it
+      // If we are on ratings, onNavigate will switch view, and we need to wait for render to scroll
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    } else if (href === '/ratings') {
+      onNavigate('ratings');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const navLinks = [
     { name: 'About', href: '#about' },
     { name: 'Experience', href: '#experience' },
@@ -45,7 +70,7 @@ const Navbar: React.FC = () => {
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
         className={`fixed w-full z-50 transition-all duration-300 ${
-          scrolled 
+          scrolled || currentView === 'ratings'
             ? 'bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60 shadow-lg shadow-neon-purple/5' 
             : 'bg-transparent py-2 md:py-4'
         }`}
@@ -55,10 +80,7 @@ const Navbar: React.FC = () => {
             {/* Logo */}
             <div 
               className="flex-shrink-0 cursor-pointer group" 
-              onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setIsOpen(false);
-              }}
+              onClick={() => handleLinkClick('#about')}
             >
               <div className="relative">
                 <span className="text-xl md:text-2xl font-bold text-white tracking-tight relative z-10 transition-all duration-300 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-neon-blue group-hover:to-neon-purple">
@@ -73,16 +95,29 @@ const Navbar: React.FC = () => {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-2">
                 {navLinks.map((link) => (
-                  <a
+                  <button
                     key={link.name}
-                    href={link.href}
-                    className="relative px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors group overflow-hidden rounded-md"
+                    onClick={() => handleLinkClick(link.href)}
+                    className={`relative px-4 py-2 text-sm font-medium transition-colors group overflow-hidden rounded-md ${currentView === 'home' ? 'text-slate-300 hover:text-white' : 'text-slate-400 hover:text-slate-200'}`}
                   >
                     <span className="relative z-10">{link.name}</span>
                     <span className="absolute inset-0 bg-slate-800/0 group-hover:bg-slate-800/50 transition-colors duration-300 rounded-md"></span>
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-neon-blue to-neon-purple transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                  </a>
+                  </button>
                 ))}
+                
+                {/* Ratings Link */}
+                <button
+                    onClick={() => handleLinkClick('/ratings')}
+                    className={`relative px-4 py-2 text-sm font-medium transition-colors group overflow-hidden rounded-md ${currentView === 'ratings' ? 'text-white' : 'text-slate-300 hover:text-white'}`}
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                        <Star size={14} className={currentView === 'ratings' ? 'text-neon-green fill-neon-green' : 'text-slate-400'} />
+                        Ratings
+                    </span>
+                    <span className={`absolute inset-0 transition-colors duration-300 rounded-md ${currentView === 'ratings' ? 'bg-slate-800/80' : 'bg-slate-800/0 group-hover:bg-slate-800/50'}`}></span>
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-neon-green to-neon-blue transform transition-transform duration-300 origin-left ${currentView === 'ratings' ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span>
+                  </button>
               </div>
             </div>
 
@@ -154,7 +189,7 @@ const Navbar: React.FC = () => {
             <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-[80px]"></div>
             <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-neon-blue/10 rounded-full blur-[80px]"></div>
 
-            <nav className="flex flex-col items-center space-y-8 z-10 w-full px-8">
+            <nav className="flex flex-col items-center space-y-6 z-10 w-full px-8">
               {navLinks.map((link, index) => (
                 <motion.div
                   key={link.name}
@@ -163,17 +198,29 @@ const Navbar: React.FC = () => {
                   transition={{ delay: index * 0.1 + 0.2 }}
                   className="w-full text-center"
                 >
-                  <a
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className="block w-full text-4xl font-bold text-slate-400 hover:text-white transition-all hover:scale-105 active:scale-95"
+                  <button
+                    onClick={() => handleLinkClick(link.href)}
+                    className="block w-full text-3xl font-bold text-slate-400 hover:text-white transition-all hover:scale-105 active:scale-95"
                   >
                     <span className="bg-clip-text hover:text-transparent hover:bg-gradient-to-r hover:from-neon-blue hover:to-neon-pink transition-all duration-300">
                         {link.name}
                     </span>
-                  </a>
+                  </button>
                 </motion.div>
               ))}
+              <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="w-full text-center"
+                >
+                  <button
+                    onClick={() => handleLinkClick('/ratings')}
+                    className="block w-full text-3xl font-bold text-neon-green hover:text-white transition-all hover:scale-105 active:scale-95"
+                  >
+                    Ratings
+                  </button>
+                </motion.div>
             </nav>
 
             <motion.div 
