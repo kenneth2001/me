@@ -93,7 +93,8 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentView }) => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-2">
+              {/* Changed items-baseline to items-center to align mixed content (text vs icon buttons) properly */}
+              <div className="ml-10 flex items-center space-x-2">
                 {navLinks.map((link) => (
                   <button
                     key={link.name}

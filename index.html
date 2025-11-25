@@ -88,6 +88,7 @@
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
+        height: 8px;
       }
       ::-webkit-scrollbar-track {
         background: #09090b;
@@ -98,6 +99,19 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #3f3f46;
+      }
+      
+      /* Utilities */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .mask-linear-fade {
+        mask-image: linear-gradient(to right, black 85%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
       }
       
       /* Neon Text Utilities */
