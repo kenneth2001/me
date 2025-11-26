@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Search, Star, ExternalLink, Activity, ArrowUpRight, BarChart3, Clock } from 'lucide-react';
+import { Search, Star, ExternalLink, Activity, ArrowUpRight, BarChart3, Clock, Filter, X, Calendar, User } from 'lucide-react';
 import Section from './Section';
 
 // CSV path
@@ -10,6 +10,7 @@ interface RatingItem {
   id: string;
   myRating: number;
   dateRated: string;
+  releaseDate: string; // Added release date
   title: string;
   url: string;
   type: string;
@@ -22,15 +23,15 @@ interface RatingItem {
 }
 
 // --- 3D Tilt Card Component ---
-const TiltCard = ({ children, className, glowColor }: { children: React.ReactNode, className?: string, glowColor: string }) => {
+const TiltCard = ({ children, className, glowColor }: { children?: React.ReactNode, className?: string, glowColor: string }) => {
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
     const mouseX = useSpring(x, { stiffness: 150, damping: 15 });
     const mouseY = useSpring(y, { stiffness: 150, damping: 15 });
 
-    const rotateX = useTransform(mouseY, [-0.5, 0.5], ["5deg", "-5deg"]);
-    const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-5deg", "5deg"]);
+    const rotateX = useTransform(mouseY, [-0.5, 0.5], ["3deg", "-3deg"]);
+    const rotateY = useTransform(mouseX, [-0.5, 0.5], ["-3deg", "3deg"]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -60,7 +61,7 @@ const TiltCard = ({ children, className, glowColor }: { children: React.ReactNod
         >
             <div 
                 style={{ transform: "translateZ(0px)" }} 
-                className={`absolute inset-0 rounded-xl transition-opacity duration-500 opacity-0 group-hover:opacity-100 ${glowColor} blur-xl`} 
+                className={`absolute inset-0 rounded-xl transition-opacity duration-500 opacity-0 group-hover:opacity-40 ${glowColor} blur-2xl -z-10`} 
             />
             {children}
         </motion.div>
@@ -70,14 +71,14 @@ const TiltCard = ({ children, className, glowColor }: { children: React.ReactNod
 // --- Custom Chart Components ---
 
 const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
-    const [hoveredRating, setHoveredRating] = useState<number | null>(null);
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     const counts = useMemo(() => {
         const c = Array(11).fill(0);
         let max = 0;
         data.forEach(d => {
             const r = Math.round(d.myRating);
-            if (r >= 0 && r <= 10) {
+            if (r >= 1 && r <= 10) {
                 c[r]++;
                 if (c[r] > max) max = c[r];
             }
@@ -86,72 +87,80 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
     }, [data]);
 
     return (
-        <div 
-            className="w-full h-44 flex items-end justify-between gap-1 sm:gap-2 px-2 select-none relative"
-            onMouseLeave={() => setHoveredRating(null)}
-        >
-            {counts.counts.map((count, rating) => {
-                if (rating === 0) return null; // Skip 0
-                
-                // Calculate height percentage relative to container
-                // Cap at 75% to leave generous headroom for tooltip and bottom room for label
-                const percentage = counts.max > 0 ? (count / counts.max) : 0;
-                const barHeightPercent = percentage * 75;
-                
-                let barColor = 'bg-slate-700';
-                if (rating >= 9) barColor = 'bg-neon-green shadow-[0_0_10px_rgba(10,255,0,0.5)]';
-                else if (rating >= 8) barColor = 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]';
-                else if (rating >= 6) barColor = 'bg-yellow-400';
+        <div className="w-full flex flex-col h-40 md:h-48 select-none">
+            {/* Chart Area */}
+            <div className="flex-1 relative border-b border-slate-800/50 flex items-end gap-1.5 md:gap-2 pb-0">
+                 {/* Background Grid Lines */}
+                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20 z-0 py-2">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="w-full h-px bg-slate-700 border-dashed"></div>
+                    ))}
+                 </div>
 
-                const isHovered = hoveredRating === rating;
+                 {counts.counts.map((count, rating) => {
+                     if (rating === 0) return null; // Skip 0
 
-                return (
-                    <div 
-                        key={rating} 
-                        className="flex-1 flex flex-col items-center justify-end h-full group relative z-10"
-                        onMouseEnter={() => setHoveredRating(rating)}
-                    >
-                         {/* Bar Wrapper - Height is relative to the Max Count, maxing out at 75% of container */}
+                     const percentage = counts.max > 0 ? (count / counts.max) * 100 : 0;
+                     const isHovered = hoveredIndex === rating;
+
+                     // Determine Colors - Cleaner, more cohesive palette
+                     let barColor = "bg-slate-700";
+                     let activeColor = "bg-slate-500";
+                     
+                     if (rating === 10) {
+                         barColor = "bg-yellow-500";
+                         activeColor = "bg-yellow-400";
+                     } else if (rating >= 8) {
+                         barColor = "bg-emerald-500";
+                         activeColor = "bg-emerald-400";
+                     } else if (rating >= 6) {
+                         barColor = "bg-blue-500";
+                         activeColor = "bg-blue-400";
+                     } else if (rating >= 4) {
+                         barColor = "bg-indigo-500";
+                         activeColor = "bg-indigo-400";
+                     } else {
+                        barColor = "bg-slate-600";
+                        activeColor = "bg-slate-500";
+                     }
+
+                     return (
                          <div 
-                            className="w-full flex justify-center relative items-end transition-all duration-300 ease-out"
-                            style={{ height: `${Math.max(barHeightPercent, 2)}%` }}
+                            key={rating} 
+                            className="flex-1 h-full flex flex-col justify-end group relative z-10 cursor-pointer"
+                            onMouseEnter={() => setHoveredIndex(rating)}
+                            onMouseLeave={() => setHoveredIndex(null)}
                          >
-                             {/* Tooltip - Strictly Top Centered */}
-                             <AnimatePresence>
-                                 {isHovered && (
-                                    <motion.div 
-                                        initial={{ opacity: 0, y: 5, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, y: 5, scale: 0.9 }}
-                                        transition={{ duration: 0.15 }}
-                                        className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 flex flex-col items-center z-50 pointer-events-none"
-                                    >
-                                        <div className="bg-slate-800/95 backdrop-blur-md text-white text-xs font-bold px-2 py-1 rounded shadow-xl border border-neon-blue/30 whitespace-nowrap min-w-[24px] text-center">
-                                            {count}
-                                        </div>
-                                        <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-slate-800/95 -mt-[1px]"></div>
-                                    </motion.div>
-                                 )}
-                             </AnimatePresence>
+                            <div className={`w-full flex justify-center transition-all duration-200 ${isHovered ? 'mb-0 opacity-100' : 'mb-0 opacity-0'}`}>
+                                 <div className="bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 shadow-xl min-w-[20px] text-center z-20 origin-bottom scale-90 md:scale-100">
+                                     {count}
+                                 </div>
+                             </div>
 
-                             {/* Actual Bar */}
-                             <motion.div 
-                                initial={{ height: 0 }}
-                                animate={{ height: '100%' }}
-                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                                className={`w-full max-w-[20px] rounded-t-sm ${barColor} transition-all duration-200 ${isHovered ? 'opacity-100 brightness-110' : 'opacity-60 group-hover:opacity-80'}`}
-                             ></motion.div>
+                             {/* The Bar */}
+                             <div 
+                                className={`w-full relative rounded-t-sm transition-all duration-300 ${isHovered ? activeColor : barColor} opacity-80 hover:opacity-100`}
+                                style={{ height: `${Math.max(percentage * 0.75, 2)}%` }} // Scale max height to 75% container
+                             >
+                             </div>
                          </div>
-                         
-                        {/* Label - Fixed height for perfect baseline alignment */}
-                        <div className="h-6 flex items-center justify-center w-full mt-2">
-                            <span className={`text-[10px] font-mono transition-colors duration-200 ${isHovered ? 'text-white font-bold scale-110' : 'text-slate-600'}`}>
-                                {rating}
-                            </span>
+                     );
+                 })}
+            </div>
+
+            {/* X-Axis Labels */}
+            <div className="h-6 flex items-center gap-1.5 md:gap-2 pt-2">
+                {counts.counts.map((_, rating) => {
+                    if (rating === 0) return null;
+                    const isHovered = hoveredIndex === rating;
+                    
+                    return (
+                        <div key={rating} className={`flex-1 text-center text-[9px] md:text-[10px] font-mono transition-all duration-200 ${isHovered ? 'text-white font-bold' : 'text-slate-600'}`}>
+                            {rating}
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     );
 };
@@ -204,11 +213,12 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
         let maxCount = 0;
 
         data.forEach(d => {
-            if (d.year && d.year > 1900) {
-                yearMap[d.year] = (yearMap[d.year] || 0) + 1;
-                if (yearMap[d.year] > maxCount) maxCount = yearMap[d.year];
-                if (d.year < min) min = d.year;
-                if (d.year > max) max = d.year;
+            const releaseYear = d.releaseDate ? parseInt(d.releaseDate.split('-')[0]) : d.year;
+            if (releaseYear && releaseYear > 1900) {
+                yearMap[releaseYear] = (yearMap[releaseYear] || 0) + 1;
+                if (yearMap[releaseYear] > maxCount) maxCount = yearMap[releaseYear];
+                if (releaseYear < min) min = releaseYear;
+                if (releaseYear > max) max = releaseYear;
             }
         });
         
@@ -240,8 +250,6 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
         const year = minYear + safeIndex;
         const count = yearMap[year] || 0;
         
-        // Logic: If on the left half (<50%), show tooltip to the RIGHT.
-        // If on the right half (>=50%), show tooltip to the LEFT.
         const isTooltipRight = point[0] < 50;
         
         return { point, year, count, isTooltipRight };
@@ -262,7 +270,7 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
 
     return (
         <div 
-            className="w-full h-32 relative pt-6 px-2 cursor-crosshair select-none group"
+            className="w-full h-32 md:h-36 relative pt-4 md:pt-6 px-1 md:px-2 cursor-crosshair select-none group"
             ref={containerRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setActiveX(null)}
@@ -274,6 +282,14 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
                             <stop offset="0%" stopColor="rgb(188, 19, 254)" stopOpacity="0.4" />
                             <stop offset="100%" stopColor="rgb(188, 19, 254)" stopOpacity="0.0" />
                         </linearGradient>
+                        {/* Glow filter for the dot */}
+                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
                     </defs>
                     
                     <motion.path 
@@ -296,14 +312,29 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
                         transition={{ duration: 1.5, ease: "easeInOut" }}
                     />
 
-                    {/* Active Point Indicator */}
+                    {/* Active Point Indicator - Enhanced Halo Dot */}
                     {activeData && (
-                        <circle 
-                            cx={activeData.point[0]} 
-                            cy={activeData.point[1]} 
-                            r="3" 
-                            className="fill-slate-950 stroke-white stroke-2"
-                        />
+                        <g>
+                            {/* Outer Halo */}
+                            <circle 
+                                cx={activeData.point[0]} 
+                                cy={activeData.point[1]} 
+                                r="4" 
+                                fill="rgb(188, 19, 254)" 
+                                fillOpacity="0.3"
+                                className="animate-pulse"
+                            />
+                            {/* Inner White Dot with border */}
+                            <circle 
+                                cx={activeData.point[0]} 
+                                cy={activeData.point[1]} 
+                                r="2" 
+                                fill="white"
+                                stroke="rgb(188, 19, 254)"
+                                strokeWidth="0.5"
+                                filter="url(#glow)"
+                            />
+                        </g>
                     )}
                  </svg>
 
@@ -318,17 +349,14 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
                             className="absolute z-20 pointer-events-none flex items-center"
                             style={{ 
                                 top: `${(activeData.point[1] / 50) * 100}%`,
-                                // If tooltip should be on the right, anchor left to the point.
-                                // If tooltip should be on the left, anchor right to (100 - point)%.
                                 left: activeData.isTooltipRight ? `${activeData.point[0]}%` : 'auto',
                                 right: activeData.isTooltipRight ? 'auto' : `${100 - activeData.point[0]}%`,
-                                // Apply pure transform for spacing and centering Y
                                 transform: 'translateY(-50%)',
                                 marginLeft: activeData.isTooltipRight ? '12px' : 0,
                                 marginRight: activeData.isTooltipRight ? 0 : '12px',
                             }}
                          >
-                            {/* Arrow for Right-Side Tooltip (attached to left of content) */}
+                            {/* Arrow */}
                             {activeData.isTooltipRight && (
                                 <div className="w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-slate-800/95 mr-[-1px]"></div>
                             )}
@@ -339,7 +367,7 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
                                 <div className="text-[10px] text-neon-purple uppercase font-semibold tracking-wide whitespace-nowrap">{activeData.count} titles</div>
                             </div>
 
-                            {/* Arrow for Left-Side Tooltip (attached to right of content) */}
+                            {/* Arrow */}
                             {!activeData.isTooltipRight && (
                                 <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[6px] border-l-slate-800/95 ml-[-1px]"></div>
                             )}
@@ -348,10 +376,10 @@ const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
                  </AnimatePresence>
                  
                  {/* X Axis Labels */}
-                 <div className={`absolute bottom-0 left-0 text-[10px] font-mono text-slate-500 translate-y-full pt-2 transition-opacity duration-300 ${activeX && activeX < 15 ? 'opacity-20' : 'opacity-100'}`}>
+                 <div className={`absolute bottom-0 left-0 text-[10px] font-mono text-slate-500 translate-y-full pt-1 md:pt-2 transition-opacity duration-300 ${activeX && activeX < 15 ? 'opacity-20' : 'opacity-100'}`}>
                      {minYear}
                  </div>
-                 <div className={`absolute bottom-0 right-0 text-[10px] font-mono text-slate-500 translate-y-full pt-2 transition-opacity duration-300 ${activeX && activeX > 85 ? 'opacity-20' : 'opacity-100'}`}>
+                 <div className={`absolute bottom-0 right-0 text-[10px] font-mono text-slate-500 translate-y-full pt-1 md:pt-2 transition-opacity duration-300 ${activeX && activeX > 85 ? 'opacity-20' : 'opacity-100'}`}>
                      {maxYear}
                  </div>
              </div>
@@ -365,7 +393,7 @@ const Ratings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('All');
   const [sortConfig, setSortConfig] = useState<{ key: keyof RatingItem; direction: 'asc' | 'desc' }>({
-    key: 'dateRated',
+    key: 'myRating',
     direction: 'desc'
   });
   const [spotlightItem, setSpotlightItem] = useState<RatingItem | null>(null);
@@ -429,6 +457,7 @@ const Ratings: React.FC = () => {
           runtime: parseInt(row[8]) || 0,
           year: parseInt(row[9]) || 0,
           genres: row[10] ? row[10].split(',').map((g) => g.trim()) : [],
+          releaseDate: row[12], // Index 12 is Release Date from CSV
           director: row[13],
           pictureUrl: row[14],
         })).filter(item => item.title);
@@ -491,27 +520,27 @@ const Ratings: React.FC = () => {
   };
 
   const getRatingColor = (rating: number) => {
-    if (rating >= 9) return 'text-neon-green';
-    if (rating >= 8) return 'text-cyan-400';
-    if (rating >= 6) return 'text-yellow-400';
+    if (rating === 10) return 'text-yellow-400';
+    if (rating >= 8) return 'text-emerald-400';
+    if (rating >= 6) return 'text-blue-400';
+    if (rating >= 4) return 'text-indigo-400';
     return 'text-slate-400';
   };
 
-  const getGlowColor = (rating: number) => {
-    if (rating >= 9) return 'bg-neon-green/20';
-    if (rating >= 8) return 'bg-cyan-400/20';
-    if (rating >= 6) return 'bg-yellow-400/20';
-    return 'bg-slate-500/10';
+  const getRatingBg = (rating: number) => {
+    if (rating === 10) return 'bg-yellow-500';
+    if (rating >= 8) return 'bg-emerald-500';
+    if (rating >= 6) return 'bg-blue-500';
+    if (rating >= 4) return 'bg-indigo-500';
+    return 'bg-slate-600';
   }
 
-  // Dynamic Grid Span Logic
-  const getGridSpanClass = (item: RatingItem) => {
-      // 10s are Wide (2x1) to highlight them
-      if (item.myRating === 10) {
-          return "col-span-1 md:col-span-2 md:row-span-1";
-      }
-      return "col-span-1 row-span-1";
-  };
+  const getGlowColor = (rating: number) => {
+    if (rating === 10) return 'bg-yellow-500/30';
+    if (rating >= 8) return 'bg-emerald-500/30';
+    if (rating >= 6) return 'bg-blue-500/30';
+    return 'bg-indigo-500/20';
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden selection:bg-neon-pink/30">
@@ -529,53 +558,49 @@ const Ratings: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="relative w-full h-[60vh] md:h-[70vh] flex items-end justify-start overflow-hidden border-b border-slate-800"
+                // Reduced height on mobile to be less overwhelming
+                className="relative w-full min-h-[300px] md:min-h-[450px] md:h-[50vh] max-h-[600px] flex items-end justify-start overflow-hidden border-b border-slate-800"
              >
                 {/* Backdrop Image */}
                 <div className="absolute inset-0 z-0">
                     <img 
                         src={spotlightItem.pictureUrl} 
                         alt="Spotlight" 
-                        className="w-full h-full object-cover object-top opacity-40 blur-md scale-105" 
+                        className="w-full h-full object-cover object-top opacity-30 blur-sm scale-105" 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/50 to-transparent"></div>
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pb-16 md:pb-24">
-                    <div className="flex flex-col md:flex-row items-end gap-8">
-                         {/* Poster Thumb */}
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 w-full pb-6 md:pb-16">
+                    <div className="flex flex-col md:flex-row items-start md:items-end gap-4 md:gap-8">
+                         {/* Poster Thumb - Hidden on Mobile to save space */}
                         <motion.div 
-                            initial={{ y: 50, opacity: 0 }}
+                            initial={{ y: 30, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="hidden md:block w-48 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl shadow-black/50 border border-white/10 rotate-3"
+                            className="hidden md:block w-36 lg:w-40 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl shadow-black/80 border border-white/10 shrink-0"
                         >
                              <img src={spotlightItem.pictureUrl} className="w-full h-full object-cover" />
                         </motion.div>
 
-                        <div className="flex-1 space-y-4">
+                        <div className="flex-1 space-y-2 md:space-y-4">
                             <motion.div 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className="flex items-center gap-3"
                             >
-                                <span className={`px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-full border bg-black/50 backdrop-blur-md ${getRatingColor(spotlightItem.myRating)} border-current`}>
-                                    Featured Pick
+                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded border bg-black/40 backdrop-blur-md ${getRatingColor(spotlightItem.myRating)} border-white/10`}>
+                                    Spotlight
                                 </span>
-                                {spotlightItem.imdbRating > 0 && (
-                                     <span className="flex items-center gap-1 text-yellow-400 text-sm font-semibold">
-                                        <Star size={14} className="fill-current" /> IMDb {spotlightItem.imdbRating}
-                                    </span>
-                                )}
                             </motion.div>
 
                             <motion.h1 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 }}
-                                className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-none tracking-tight drop-shadow-lg"
+                                className="text-2xl md:text-5xl lg:text-6xl font-black text-white leading-tight md:leading-none tracking-tight drop-shadow-lg max-w-3xl"
                             >
                                 {spotlightItem.title}
                             </motion.h1>
@@ -584,39 +609,39 @@ const Ratings: React.FC = () => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.2 }}
-                                className="flex flex-wrap items-center gap-4 text-slate-300 text-sm md:text-base"
+                                className="flex flex-wrap items-center gap-3 md:gap-4 text-slate-300 text-xs md:text-sm"
                             >
-                                <span>{spotlightItem.year}</span>
+                                <span className="text-white font-medium">{spotlightItem.year}</span>
                                 {spotlightItem.runtime > 0 && (
                                     <>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                                        <span className="w-1 h-1 rounded-full bg-slate-500"></span>
                                         <span>{Math.floor(spotlightItem.runtime / 60)}h {spotlightItem.runtime % 60}m</span>
                                     </>
                                 )}
-                                <span className="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                                <span className="uppercase tracking-wide">{spotlightItem.genres.slice(0,3).join(' / ')}</span>
+                                <span className="w-1 h-1 rounded-full bg-slate-500"></span>
+                                <span className="uppercase tracking-wide text-xs">{spotlightItem.genres.slice(0,3).join(' / ')}</span>
                             </motion.div>
 
                             <motion.div 
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="flex items-center gap-6 mt-6"
+                                className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 md:mt-6"
                             >
-                                <div className="flex flex-col">
-                                    <span className="text-xs text-slate-400 uppercase tracking-widest mb-1">My Score</span>
-                                    <div className={`text-5xl font-black ${getRatingColor(spotlightItem.myRating)} drop-shadow-[0_0_15px_rgba(0,0,0,0.8)]`}>
-                                        {spotlightItem.myRating}<span className="text-2xl text-slate-500">/10</span>
+                                <div className="flex items-center gap-3 bg-white/5 px-3 md:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
+                                    <span className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-semibold">My Rating</span>
+                                    <div className={`text-xl md:text-2xl font-black ${getRatingColor(spotlightItem.myRating)}`}>
+                                        {spotlightItem.myRating}<span className="text-sm text-slate-500 font-medium">/10</span>
                                     </div>
                                 </div>
-                                <div className="w-px h-12 bg-slate-700"></div>
+                                
                                 <a 
                                     href={spotlightItem.url} 
                                     target="_blank" 
                                     rel="noreferrer"
-                                    className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full font-bold backdrop-blur-md transition-all border border-white/10 hover:scale-105"
+                                    className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-neon-purple/90 hover:bg-neon-purple text-white rounded-lg font-semibold shadow-lg shadow-neon-purple/20 transition-all hover:scale-105 text-xs md:text-sm"
                                 >
-                                    View Details <ArrowUpRight size={18} />
+                                    Details <ArrowUpRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                 </a>
                             </motion.div>
                         </div>
@@ -625,37 +650,37 @@ const Ratings: React.FC = () => {
              </motion.div>
         )}
 
-        <Section id="ratings-gallery" className="relative z-10 -mt-10 md:-mt-16">
+        <Section id="ratings-gallery" className="relative z-10 -mt-6 md:-mt-16">
         
         {/* --- ANALYTICS DASHBOARD --- */}
         {!loading && (
              <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-7xl mx-auto mb-16"
+                className="max-w-7xl mx-auto mb-12 md:mb-16 px-0 md:px-4"
              >
-                <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl relative group">
-                    {/* Background Glow Container - overflow hidden to contain the glow, but main card is visible */}
-                    <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
-                         <div className="absolute -top-20 -right-20 w-60 h-60 bg-neon-blue/10 rounded-full blur-[80px] group-hover:bg-neon-blue/20 transition-colors duration-500"></div>
+                <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 md:rounded-xl p-4 md:p-8 shadow-2xl relative">
+                    {/* Separate overflow container for background effects to allow tooltips to overflow */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl">
+                         {/* Background glow effects can go here if needed */}
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative z-10">
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 relative z-10">
                          {/* Stats Column */}
-                        <div className="space-y-6">
+                        <div className="space-y-4 md:space-y-6">
                             <div className="flex items-center gap-3 mb-2">
                                 <Activity className="text-neon-blue" />
-                                <h3 className="text-xl font-bold text-white">Analytics</h3>
+                                <h3 className="text-lg font-bold text-white tracking-wide">Overview</h3>
                             </div>
                             
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                                    <div className="text-slate-400 text-xs uppercase tracking-wider mb-1">Titles Watched</div>
-                                    <div className="text-3xl font-black text-white">{data.length}</div>
+                                <div className="bg-slate-950 p-4 rounded-lg border border-slate-800/50">
+                                    <div className="text-slate-500 text-[10px] uppercase tracking-wider mb-1 font-bold">Titles Watched</div>
+                                    <div className="text-2xl font-black text-white">{data.length}</div>
                                 </div>
-                                <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
-                                    <div className="text-slate-400 text-xs uppercase tracking-wider mb-1">Avg Score</div>
-                                    <div className="text-3xl font-black text-neon-purple flex items-baseline gap-1">
+                                <div className="bg-slate-950 p-4 rounded-lg border border-slate-800/50">
+                                    <div className="text-slate-500 text-[10px] uppercase tracking-wider mb-1 font-bold">Avg Score</div>
+                                    <div className="text-2xl font-black text-neon-blue flex items-baseline gap-1">
                                         {averageRating} <span className="text-xs font-normal text-slate-500">/10</span>
                                     </div>
                                 </div>
@@ -663,19 +688,19 @@ const Ratings: React.FC = () => {
                         </div>
 
                         {/* Rating Dist */}
-                        <div className="md:col-span-1">
+                        <div className="lg:col-span-1">
                             <div className="flex items-center gap-2 mb-4 text-sm text-slate-400">
                                 <BarChart3 size={16} />
-                                <span className="uppercase tracking-wider font-semibold">Score Distribution</span>
+                                <span className="uppercase tracking-wider font-bold text-xs">Score Distribution</span>
                             </div>
                             <RatingDistributionChart data={data} />
                         </div>
 
                         {/* Year Dist */}
-                        <div className="md:col-span-1">
+                        <div className="lg:col-span-1">
                             <div className="flex items-center gap-2 mb-4 text-sm text-slate-400">
                                 <Clock size={16} />
-                                <span className="uppercase tracking-wider font-semibold">Release Timeline</span>
+                                <span className="uppercase tracking-wider font-bold text-xs">Release Timeline</span>
                             </div>
                             <YearDistributionChart data={data} />
                         </div>
@@ -685,61 +710,68 @@ const Ratings: React.FC = () => {
         )}
 
         {/* --- CONTROLS BAR --- */}
-        <div className="sticky top-20 z-50 mb-12">
-            <div className="bg-slate-950/90 backdrop-blur-xl border-y border-white/10 md:border md:rounded-full py-3 px-6 shadow-2xl shadow-black/50 max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300">
+        <div className="sticky top-16 md:top-20 z-40 mb-8 pointer-events-none px-2 md:px-0">
+            <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/50 rounded-lg md:rounded-xl py-2 md:py-3 px-3 md:px-4 shadow-2xl max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 pointer-events-auto">
                 
                 {/* Search */}
-                <div className="relative w-full md:w-auto md:flex-1 group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-neon-blue transition-colors" />
+                <div className="relative w-full md:w-64 group">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-white transition-colors" />
                     <input
                         type="text"
-                        className="w-full bg-transparent border-none text-slate-200 placeholder-slate-500 focus:ring-0 text-sm h-10 pl-9 focus:outline-none"
-                        placeholder="Filter by title, genre, director..."
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-1 focus:ring-neon-blue focus:border-neon-blue text-sm h-9 pl-9 focus:outline-none transition-all"
+                        placeholder="Search titles..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                    {searchTerm && (
+                        <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
+                            <X size={14} />
+                        </button>
+                    )}
                 </div>
 
-                <div className="w-px h-6 bg-slate-800 hidden md:block"></div>
-
                 {/* Filters */}
-                <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar">
-                    {['All', 'Movie', 'TV'].map(type => (
-                        <button
-                            key={type}
-                            onClick={() => setSelectedType(type)}
-                            className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
-                                selectedType === type 
-                                ? 'bg-slate-100 text-slate-900 shadow-[0_0_10px_rgba(255,255,255,0.3)]' 
-                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
+                    <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800">
+                        {['All', 'Movie', 'TV'].map(type => (
+                            <button
+                                key={type}
+                                onClick={() => setSelectedType(type)}
+                                className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                                    selectedType === type 
+                                    ? 'bg-slate-700 text-white shadow-sm' 
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                }`}
+                            >
+                                {type}
+                            </button>
+                        ))}
+                    </div>
+                    
+                    <div className="w-px h-5 bg-slate-800 mx-2 hidden md:block"></div>
+                    
+                    <div className="flex gap-2">
+                         <button
+                            onClick={() => handleSort('myRating')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                                sortConfig.key === 'myRating'
+                                ? 'bg-slate-800 border-slate-700 text-white'
+                                : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-slate-900'
                             }`}
                         >
-                            {type}
+                            Score <ArrowUpRight size={12} className={`transition-transform duration-300 ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`} />
                         </button>
-                    ))}
-                    
-                    <div className="w-px h-6 bg-slate-800 mx-2"></div>
-                    
-                    <button
-                        onClick={() => handleSort('myRating')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
-                            sortConfig.key === 'myRating'
-                            ? 'bg-neon-purple/10 border-neon-purple text-neon-purple'
-                            : 'border-transparent text-slate-400 hover:text-white'
-                        }`}
-                    >
-                        Score <ArrowUpRight size={12} className={`transition-transform duration-300 ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`} />
-                    </button>
-                    <button
-                        onClick={() => handleSort('dateRated')}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
-                            sortConfig.key === 'dateRated'
-                            ? 'bg-neon-blue/10 border-neon-blue text-neon-blue'
-                            : 'border-transparent text-slate-400 hover:text-white'
-                        }`}
-                    >
-                        Date <ArrowUpRight size={12} className={`transition-transform duration-300 ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`} />
-                    </button>
+                        <button
+                            onClick={() => handleSort('releaseDate')}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                                sortConfig.key === 'releaseDate'
+                                ? 'bg-slate-800 border-slate-700 text-white'
+                                : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-slate-900'
+                            }`}
+                        >
+                            Release <ArrowUpRight size={12} className={`transition-transform duration-300 ${sortConfig.direction === 'asc' ? 'rotate-180' : ''}`} />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -747,89 +779,88 @@ const Ratings: React.FC = () => {
         {/* --- LOADING --- */}
         {loading && (
              <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-12 h-12 border-2 border-slate-800 border-t-neon-blue rounded-full animate-spin"></div>
+                <div className="w-8 h-8 border-2 border-slate-800 border-t-neon-blue rounded-full animate-spin"></div>
             </div>
         )}
 
         {/* --- DYNAMIC GRID GALLERY --- */}
         {!loading && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 auto-rows-dense px-4 pb-20">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6 px-4 pb-20 max-w-7xl mx-auto">
                 <AnimatePresence mode="popLayout">
                     {filteredData.map((item) => {
-                        const spanClass = getGridSpanClass(item);
-                        const isWide = spanClass.includes("col-span-2");
-
-                        // Calculate aspect ratio class based on card type to prevent collapse
-                        let aspectRatioClass = "aspect-[2/3]"; // Default vertical poster
-                        if (isWide) aspectRatioClass = "aspect-[16/9]"; // Wide cinematic
-
                         return (
                             <motion.div
                                 layout
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                                transition={{ 
+                                    layout: { type: "spring", stiffness: 100, damping: 20 },
+                                    opacity: { duration: 0.2 }
+                                }}
                                 key={item.id}
-                                className={`group ${spanClass}`}
+                                className="group col-span-1"
                             >
                                 <TiltCard glowColor={getGlowColor(item.myRating)}>
-                                    <div className={`relative w-full h-full rounded-xl overflow-hidden bg-slate-900 border transition-all duration-300 ${item.myRating >= 9 ? 'border-neon-green/30' : 'border-slate-800 group-hover:border-slate-600'} flex flex-col`}>
+                                    <div className="flex flex-col h-full bg-slate-900/50 rounded-xl border border-slate-800 group-hover:border-slate-600/50 overflow-hidden transition-colors duration-300 shadow-xl shadow-black/50">
                                         
-                                        {/* Image Section */}
-                                        <div className={`relative overflow-hidden ${isWide ? 'h-full absolute inset-0' : `${aspectRatioClass} w-full`}`}>
+                                        {/* Card Top: Poster & Badge */}
+                                        <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
+                                            {/* Poster Image */}
                                             <img 
                                                 src={item.pictureUrl} 
                                                 alt={item.title} 
-                                                className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${isWide ? 'opacity-40 group-hover:opacity-50' : ''}`}
+                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                 loading="lazy"
                                             />
                                             
-                                            {/* Gradients */}
-                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
-                                            {isWide && <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-transparent to-transparent"></div>}
-                                            
-                                            {/* Top Badge */}
-                                            <div className="absolute top-3 right-3 flex flex-col items-end gap-1 opacity-100 z-10">
-                                                    {item.imdbRating > 0 && (
-                                                    <span className="px-1.5 py-0.5 bg-black/60 backdrop-blur rounded text-[10px] font-bold text-yellow-400 flex items-center gap-1 border border-white/5">
-                                                        <Star size={8} fill="currentColor" /> {item.imdbRating}
-                                                    </span>
-                                                )}
+                                            {/* My Rating Badge (Top Left Overlay) - Updated for clarity with ICON */}
+                                            <div className="absolute top-2 left-2 z-10">
+                                                <div className="flex items-center bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-full shadow-lg p-1 pr-2.5">
+                                                    <div className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full ${getRatingBg(item.myRating)} text-white mr-1.5 shadow-inner`}>
+                                                        <User size={12} strokeWidth={3} />
+                                                    </div>
+                                                    <span className={`text-sm md:text-base font-black text-white`}>{item.myRating}</span>
+                                                </div>
                                             </div>
+
+                                            {/* Dark Overlay on Hover for Details */}
+                                            <a 
+                                                href={item.url} 
+                                                target="_blank" 
+                                                rel="noreferrer"
+                                                className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4 text-center z-20"
+                                            >
+                                                <p className="text-slate-300 text-xs font-medium mb-3 line-clamp-3">{item.genres.join(', ')}</p>
+                                                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-white text-slate-950 rounded-full text-[10px] font-bold hover:scale-105 transition-transform">
+                                                    View IMDb <ExternalLink size={10} />
+                                                </span>
+                                            </a>
                                         </div>
 
-                                        {/* Content Section */}
-                                        {/* For Wide cards, content is overlaid. For standard, it's flexed below image but inside card container */}
-                                        <div className={`relative p-4 flex flex-col justify-end ${isWide ? 'h-full z-10 pb-6 pl-6' : 'flex-1 border-t border-slate-800/50'}`}>
+                                        {/* Card Bottom: Footer Info */}
+                                        <div className="p-3 flex flex-col justify-between flex-1 gap-2 bg-slate-900">
                                             
-                                            {/* Title */}
-                                            <h3 className={`font-bold text-white leading-tight mb-1 drop-shadow-md ${isWide ? 'text-xl md:text-2xl line-clamp-2 w-3/4' : 'text-sm line-clamp-2'}`}>
+                                            <h3 className="text-xs md:text-sm font-bold text-slate-100 leading-tight line-clamp-2" title={item.title}>
                                                 {item.title}
                                             </h3>
                                             
-                                            {/* Metadata */}
-                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-medium text-slate-400 mb-2">
-                                                <span className="text-slate-300">{item.year}</span>
-                                                {!isWide && item.type !== 'Movie' && <span className="px-1 py-0.5 rounded bg-slate-800 text-slate-300">{item.type}</span>}
-                                                {item.genres[0] && <span>• {item.genres[0]}</span>}
-                                            </div>
-
-                                            {/* Action Bar */}
-                                            <div className={`flex items-center justify-between border-t border-white/10 pt-2 mt-auto ${isWide ? 'w-3/4' : ''}`}>
-                                                    <a href={item.url} target="_blank" rel="noreferrer" className="text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-white flex items-center gap-1 transition-colors">
-                                                    Info <ExternalLink size={10} />
-                                                </a>
+                                            <div className="flex items-center justify-between border-t border-slate-800 pt-2 mt-auto">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">{item.year}</span>
+                                                    <span className="text-[9px] text-slate-400 font-medium">{item.type.replace(' Series', '').replace(' Mini', '')}</span>
+                                                </div>
                                                 
-                                                {/* The Score */}
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`${isWide ? 'text-4xl' : 'text-xl'} font-black ${getRatingColor(item.myRating)} drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]`}>
-                                                        {item.myRating}
-                                                    </span>
+                                                {/* IMDb Score - Updated for clarity */}
+                                                <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800" title="IMDb Rating">
+                                                     <div className="bg-[#f5c518] text-black text-[9px] font-black px-1 rounded-[2px] leading-tight">IMDb</div>
+                                                     <div className="flex items-center gap-1">
+                                                        <Star size={10} className="text-yellow-500 fill-yellow-500" />
+                                                        <span className="text-[10px] font-bold text-slate-300">{item.imdbRating > 0 ? item.imdbRating : '-'}</span>
+                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </TiltCard>
                             </motion.div>
@@ -841,12 +872,16 @@ const Ratings: React.FC = () => {
 
         {!loading && filteredData.length === 0 && (
              <div className="text-center py-20">
-                <p className="text-slate-500 text-lg">No titles found matching your criteria.</p>
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-900 border border-slate-800 mb-4">
+                    <Filter className="text-slate-500" />
+                </div>
+                <h3 className="text-lg font-medium text-white mb-2">No matches found</h3>
+                <p className="text-slate-500 text-sm max-w-xs mx-auto mb-6">We couldn't find any titles matching your current search filters.</p>
                 <button 
                   onClick={() => { setSearchTerm(''); setSelectedType('All'); }}
-                  className="mt-4 text-neon-blue hover:underline"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
-                  Reset Filters
+                  Clear all filters
                 </button>
              </div>
         )}
