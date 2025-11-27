@@ -184,7 +184,12 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentView }) => {
             animate={{ opacity: 1, clipPath: "circle(150% at 100% 0%)" }}
             exit={{ opacity: 0, clipPath: "circle(0% at 100% 0%)" }}
             transition={{ type: "spring", stiffness: 30, damping: 15 }}
-            className="fixed inset-0 z-40 bg-slate-950/98 backdrop-blur-xl md:hidden flex flex-col items-center justify-center"
+            style={{ 
+                willChange: "clip-path", 
+                transform: "translate3d(0,0,0)",
+                WebkitBackfaceVisibility: "hidden"
+            }}
+            className="fixed inset-0 z-40 bg-slate-950/80 backdrop-blur-xl md:hidden flex flex-col items-center justify-center"
           >
             {/* Background elements for mobile menu */}
             <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-[80px]"></div>

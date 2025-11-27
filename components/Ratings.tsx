@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Search, Star, ExternalLink, Activity, ArrowUpRight, BarChart3, Filter, X, User } from 'lucide-react';
+import { Search, Star, ExternalLink, Activity, ArrowUpRight, BarChart3, Filter, X, User, Loader2 } from 'lucide-react';
 import Section from './Section';
 
 // CSV path
@@ -249,6 +249,10 @@ const Ratings: React.FC = () => {
   });
   const [spotlightItem, setSpotlightItem] = useState<RatingItem | null>(null);
 
+  // Pagination State - Start with 60 to load batch 1 & 2 immediately
+  const [visibleCount, setVisibleCount] = useState(60);
+  const observerTarget = useRef<HTMLDivElement>(null);
+
   // CSV Parsing
   const parseCSV = (text: string) => {
     const rows: string[][] = [];
@@ -346,7 +350,8 @@ const Ratings: React.FC = () => {
       );
     }
 
-    return result.sort((a, b) => {
+    // Always create a new array before sorting to avoid mutating state and ensure referential change
+    return [...result].sort((a, b) => {
       // @ts-ignore
       if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
       // @ts-ignore
@@ -354,6 +359,39 @@ const Ratings: React.FC = () => {
       return 0;
     });
   }, [data, searchTerm, selectedType, sortConfig]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setVisibleCount(60);
+  }, [searchTerm, selectedType, sortConfig]);
+
+  // Derived visible data for infinite scroll
+  const visibleData = useMemo(() => {
+    return filteredData.slice(0, visibleCount);
+  }, [filteredData, visibleCount]);
+
+  // Intersection Observer for Infinite Scroll
+  useEffect(() => {
+    const currentTarget = observerTarget.current;
+    if (!currentTarget) return;
+
+    const observer = new IntersectionObserver(
+        entries => {
+            if (entries[0].isIntersecting) {
+                // Increased batch size to 40
+                setVisibleCount(prev => prev + 40);
+            }
+        },
+        // Increased rootMargin to 2500px to trigger loading much earlier (roughly 2-3 screen heights before end)
+        { threshold: 0.1, rootMargin: '2500px' }
+    );
+
+    observer.observe(currentTarget);
+
+    return () => {
+        observer.unobserve(currentTarget);
+    };
+  }, [visibleCount, filteredData]); // Re-attach when list updates
 
   useEffect(() => {
     if (filteredData.length > 0 && !spotlightItem) {
@@ -530,7 +568,7 @@ const Ratings: React.FC = () => {
 
         {/* --- CONTROLS BAR --- */}
         <div className="sticky top-16 md:top-20 z-40 mb-8 pointer-events-none px-2 md:px-0">
-            <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/50 rounded-lg md:rounded-xl py-2 md:py-3 px-3 md:px-4 shadow-2xl max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 pointer-events-auto">
+            <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/50 rounded-lg md:rounded-xl py-2 md:py-3 px-2.5 md:px-4 shadow-2xl max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 pointer-events-auto">
                 
                 {/* Search */}
                 <div className="relative w-full md:w-64 group">
@@ -550,13 +588,13 @@ const Ratings: React.FC = () => {
                 </div>
 
                 {/* Filters */}
-                <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
-                    <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800">
+                <div className="flex items-center justify-between w-full md:w-auto gap-2">
+                    <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800 shrink-0">
                         {['All', 'Movie', 'TV'].map(type => (
                             <button
                                 key={type}
                                 onClick={() => setSelectedType(type)}
-                                className={`px-3 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
+                                className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all whitespace-nowrap ${
                                     selectedType === type 
                                     ? 'bg-slate-700 text-white shadow-sm' 
                                     : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -567,12 +605,12 @@ const Ratings: React.FC = () => {
                         ))}
                     </div>
                     
-                    <div className="w-px h-5 bg-slate-800 mx-2 hidden md:block"></div>
+                    <div className="w-px h-5 bg-slate-800 mx-2 hidden md:block shrink-0"></div>
                     
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 shrink-0">
                          <button
                             onClick={() => handleSort('myRating')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                            className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-[10px] md:text-[11px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap ${
                                 sortConfig.key === 'myRating'
                                 ? 'bg-slate-800 border-slate-700 text-white'
                                 : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-slate-900'
@@ -582,7 +620,7 @@ const Ratings: React.FC = () => {
                         </button>
                         <button
                             onClick={() => handleSort('releaseDate')}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                            className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 rounded-lg text-[10px] md:text-[11px] font-bold uppercase tracking-wider transition-all border whitespace-nowrap ${
                                 sortConfig.key === 'releaseDate'
                                 ? 'bg-slate-800 border-slate-700 text-white'
                                 : 'bg-transparent border-transparent text-slate-500 hover:text-white hover:bg-slate-900'
@@ -606,7 +644,7 @@ const Ratings: React.FC = () => {
         {!loading && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6 px-4 pb-20 max-w-7xl mx-auto">
                 <AnimatePresence mode="popLayout">
-                    {filteredData.map((item) => {
+                    {visibleData.map((item) => {
                         const theme = getRatingTheme(item.myRating);
                         return (
                             <motion.div
@@ -631,7 +669,7 @@ const Ratings: React.FC = () => {
                                                 src={item.pictureUrl} 
                                                 alt={item.title} 
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                loading="lazy"
+                                                decoding="async"
                                             />
                                             
                                             {/* My Rating Badge (Top Left Overlay) - Updated for clarity with ICON */}
@@ -687,6 +725,16 @@ const Ratings: React.FC = () => {
                         );
                     })}
                 </AnimatePresence>
+
+                {/* Infinite Scroll Loader Sentinel */}
+                {visibleCount < filteredData.length && (
+                    <div ref={observerTarget} className="col-span-full h-24 flex items-center justify-center w-full">
+                         <div className="flex flex-col items-center gap-2 text-slate-500 opacity-60">
+                            <Loader2 className="animate-spin text-neon-blue" size={24} />
+                            <span className="text-xs font-mono">Loading more titles...</span>
+                         </div>
+                    </div>
+                )}
             </div>
         )}
 
