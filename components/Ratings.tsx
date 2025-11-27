@@ -108,20 +108,20 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
                      let activeColor = "bg-slate-500";
                      
                      if (rating === 10) {
-                         barColor = "bg-yellow-500";
-                         activeColor = "bg-yellow-400";
+                         barColor = "bg-gradient-to-t from-fuchsia-900 to-fuchsia-500";
+                         activeColor = "bg-gradient-to-t from-fuchsia-800 to-fuchsia-400";
                      } else if (rating >= 8) {
-                         barColor = "bg-emerald-500";
-                         activeColor = "bg-emerald-400";
+                         barColor = "bg-gradient-to-t from-emerald-900 to-emerald-500";
+                         activeColor = "bg-gradient-to-t from-emerald-800 to-emerald-400";
                      } else if (rating >= 6) {
-                         barColor = "bg-blue-500";
-                         activeColor = "bg-blue-400";
+                         barColor = "bg-gradient-to-t from-blue-900 to-blue-500";
+                         activeColor = "bg-gradient-to-t from-blue-800 to-blue-400";
                      } else if (rating >= 4) {
-                         barColor = "bg-indigo-500";
-                         activeColor = "bg-indigo-400";
+                         barColor = "bg-gradient-to-t from-amber-900 to-amber-500";
+                         activeColor = "bg-gradient-to-t from-amber-800 to-amber-400";
                      } else {
-                        barColor = "bg-slate-600";
-                        activeColor = "bg-slate-500";
+                        barColor = "bg-gradient-to-t from-red-900 to-red-500";
+                        activeColor = "bg-gradient-to-t from-red-800 to-red-400";
                      }
 
                      return (
@@ -131,17 +131,26 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
                             onMouseEnter={() => setHoveredIndex(rating)}
                             onMouseLeave={() => setHoveredIndex(null)}
                          >
-                            <div className={`w-full flex justify-center transition-all duration-200 ${isHovered ? 'mb-0 opacity-100' : 'mb-0 opacity-0'}`}>
-                                 <div className="bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 shadow-xl min-w-[20px] text-center z-20 origin-bottom scale-90 md:scale-100">
-                                     {count}
+                             {/* The Bar Container */}
+                             <div className="w-full h-full flex flex-col justify-end">
+                                 {/* Tooltip Label - Layout based, not absolute */}
+                                 <div 
+                                    className={`w-full flex justify-center mb-0 transition-all duration-200 origin-bottom ${isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-0 h-0 overflow-hidden'}`}
+                                 >
+                                    <div className="relative">
+                                        <div className={`text-[10px] font-bold text-white px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 shadow-xl whitespace-nowrap`}>
+                                            {count}
+                                        </div>
+                                         {/* Tiny arrow pointing down */}
+                                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-[0.5px] border-l-[3px] border-l-transparent border-r-[3px] border-r-transparent border-t-[3px] border-t-slate-800"></div>
+                                    </div>
                                  </div>
-                             </div>
-
-                             {/* The Bar */}
-                             <div 
-                                className={`w-full relative rounded-t-sm transition-all duration-300 ${isHovered ? activeColor : barColor} opacity-80 hover:opacity-100`}
-                                style={{ height: `${Math.max(percentage * 0.75, 2)}%` }} // Scale max height to 75% container
-                             >
+                                 
+                                 {/* The Bar */}
+                                 <div 
+                                    className={`w-full rounded-t-sm transition-all duration-300 ${isHovered ? activeColor : barColor} ${isHovered ? 'shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'opacity-80'}`}
+                                    style={{ height: `${Math.max(percentage * 0.75, 2)}%` }} // Scale max height to 75% container
+                                 ></div>
                              </div>
                          </div>
                      );
@@ -154,8 +163,17 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
                     if (rating === 0) return null;
                     const isHovered = hoveredIndex === rating;
                     
+                    let axisColor = "text-slate-600";
+                    if (isHovered) {
+                        if (rating === 10) axisColor = "text-fuchsia-400 font-bold scale-110";
+                        else if (rating >= 8) axisColor = "text-emerald-400 font-bold scale-110";
+                        else if (rating >= 6) axisColor = "text-blue-400 font-bold scale-110";
+                        else if (rating >= 4) axisColor = "text-amber-400 font-bold scale-110";
+                        else axisColor = "text-red-400 font-bold scale-110";
+                    }
+
                     return (
-                        <div key={rating} className={`flex-1 text-center text-[9px] md:text-[10px] font-mono transition-all duration-200 ${isHovered ? 'text-white font-bold' : 'text-slate-600'}`}>
+                        <div key={rating} className={`flex-1 text-center text-[9px] md:text-[10px] font-mono transition-all duration-200 ${axisColor}`}>
                             {rating}
                         </div>
                     );
@@ -178,7 +196,7 @@ const line = (pointA: number[], pointB: number[]) => {
 const controlPoint = (current: number[], previous: number[], next: number[], reverse?: boolean) => {
   const p = previous || current;
   const n = next || current;
-  const smoothing = 0.15;
+  const smoothing = 0.15; // Adjusted smoothing
   const o = line(p, n);
   const angle = o.angle + (reverse ? Math.PI : 0);
   const length = o.length * smoothing;
@@ -202,187 +220,214 @@ const svgPath = (points: number[][]) => {
 
 const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const [activeX, setActiveX] = useState<number | null>(null);
+    const [hoveredYear, setHoveredYear] = useState<number | null>(null);
 
-    const { points, minYear, maxYear, yearMap, maxCount } = useMemo(() => {
-        if (data.length === 0) return { points: [], minYear: 0, maxYear: 0, yearMap: {}, maxCount: 0 };
+    // 1. Process Data
+    const { points, minYear, maxYear, yearMap } = useMemo(() => {
+        if (data.length === 0) return { points: [], minYear: 0, maxYear: 0, yearMap: {} };
         
-        const yearMap: Record<number, number> = {};
+        const map: Record<number, number> = {};
         let min = new Date().getFullYear();
         let max = 0;
-        let maxCount = 0;
+        let peak = 0;
 
         data.forEach(d => {
-            const releaseYear = d.releaseDate ? parseInt(d.releaseDate.split('-')[0]) : d.year;
-            if (releaseYear && releaseYear > 1900) {
-                yearMap[releaseYear] = (yearMap[releaseYear] || 0) + 1;
-                if (yearMap[releaseYear] > maxCount) maxCount = yearMap[releaseYear];
-                if (releaseYear < min) min = releaseYear;
-                if (releaseYear > max) max = releaseYear;
+            const y = d.releaseDate ? parseInt(d.releaseDate.split('-')[0]) : d.year;
+            if (y && y > 1900) {
+                map[y] = (map[y] || 0) + 1;
+                if (map[y] > peak) peak = map[y];
+                if (y < min) min = y;
+                if (y > max) max = y;
             }
         });
         
-        if (min === max) { min -= 1; max += 1; }
-        if (max === 0) return { points: [], minYear: 0, maxYear: 0, yearMap: {}, maxCount: 0 };
+        // Pad the range slightly
+        min -= 2; 
+        max += 1;
 
+        if (max === 0) return { points: [], minYear: 0, maxYear: 0, yearMap: {} };
+
+        // Generate points for SVG path (0-100 coordinate space)
         const pts: number[][] = [];
         const width = 100;
-        const height = 50; 
-        const padding = 5;
-        const availableHeight = height - padding;
+        const height = 100; // Use 100x100 space for easier mental mapping
 
         for (let y = min; y <= max; y++) {
-            const count = yearMap[y] || 0;
+            const count = map[y] || 0;
             const x = ((y - min) / (max - min)) * width;
-            // Invert Y because SVG 0 is top
-            const yPos = height - ((count / maxCount) * availableHeight);
+            // Leave 10% padding at top
+            const normalizedHeight = (count / peak) * 80; 
+            const yPos = 100 - normalizedHeight;
             pts.push([x, yPos]);
         }
-        return { points: pts, minYear: min, maxYear: max, yearMap, maxCount };
+        return { points: pts, minYear: min, maxYear: max, yearMap: map };
     }, [data]);
 
-    const activeData = useMemo(() => {
-        if (activeX === null || points.length === 0) return null;
-        const index = Math.round((activeX / 100) * (points.length - 1));
-        const safeIndex = Math.max(0, Math.min(index, points.length - 1));
-        
-        const point = points[safeIndex];
-        const year = minYear + safeIndex;
-        const count = yearMap[year] || 0;
-        
-        const isTooltipRight = point[0] < 50;
-        
-        return { point, year, count, isTooltipRight };
-    }, [activeX, points, minYear, yearMap]);
-
+    // 2. Interaction Handler
     const handleMouseMove = (e: React.MouseEvent) => {
-        if (!containerRef.current) return;
+        if (!containerRef.current || !minYear) return;
         const rect = containerRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const relativeX = Math.max(0, Math.min(1, x / rect.width)) * 100;
-        setActiveX(relativeX);
+        const ratio = Math.max(0, Math.min(1, x / rect.width));
+        
+        const totalYears = maxYear - minYear;
+        const estimatedYear = Math.round(minYear + (ratio * totalYears));
+        
+        setHoveredYear(estimatedYear);
     };
+
+    // 3. Active Point Calculation
+    const activePoint = useMemo(() => {
+        if (!hoveredYear || !minYear) return null;
+        
+        const count = yearMap[hoveredYear] || 0;
+        
+        // Find x coordinate for the laser
+        const xPercent = ((hoveredYear - minYear) / (maxYear - minYear)) * 100;
+        
+        // Find the y position on the curve for intersection dot
+        // Simple linear interpolation between points for smoothing if needed, 
+        // but finding the closest point is good enough for visual feedback
+        const pointIndex = hoveredYear - minYear;
+        const point = points[pointIndex];
+        const yPercent = point ? point[1] : 100;
+
+        return { x: xPercent, y: yPercent, count, year: hoveredYear };
+    }, [hoveredYear, points, minYear, yearMap, maxYear]);
 
     if (points.length === 0) return <div className="h-32 flex items-center justify-center text-slate-500 text-xs">No Data</div>;
 
-    const linePath = svgPath(points);
-    const areaPath = `${linePath} L 100,60 L 0,60 Z`; 
+    const lineD = svgPath(points);
+    const areaD = `${lineD} L 100,100 L 0,100 Z`; 
 
     return (
-        <div 
-            className="w-full h-32 md:h-36 relative pt-4 md:pt-6 px-1 md:px-2 cursor-crosshair select-none group"
-            ref={containerRef}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => setActiveX(null)}
-        >
-             <div className="relative w-full h-full overflow-visible">
-                 <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+        <div className="w-full h-32 md:h-36 relative flex flex-col">
+            {/* HUD Header - Fixed info display */}
+            <div className="flex justify-between items-center mb-2 px-1 h-6">
+                <div className="flex gap-4 text-xs font-mono">
+                   <div className="flex items-center gap-2">
+                       <span className="text-slate-500 uppercase tracking-widest text-[9px]">Year</span>
+                       <span className={`font-bold transition-colors ${activePoint ? 'text-neon-blue' : 'text-slate-300'}`}>
+                           {activePoint ? activePoint.year : '—'}
+                       </span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                       <span className="text-slate-500 uppercase tracking-widest text-[9px]">Count</span>
+                       <span className={`font-bold transition-colors ${activePoint ? 'text-white' : 'text-slate-300'}`}>
+                           {activePoint ? activePoint.count : '—'}
+                       </span>
+                   </div>
+                </div>
+                {/* Year Range Label */}
+                <div className="text-[9px] text-slate-600 font-mono">
+                    {minYear} — {maxYear}
+                </div>
+            </div>
+
+            {/* Chart Container */}
+            <div 
+                className="flex-1 relative cursor-crosshair select-none group touch-none bg-slate-900/30 rounded-lg border border-slate-800/50 overflow-hidden"
+                ref={containerRef}
+                onMouseMove={handleMouseMove}
+                onMouseLeave={() => setHoveredYear(null)}
+            >
+                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                     <defs>
-                        <linearGradient id="yearGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="rgb(188, 19, 254)" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="rgb(188, 19, 254)" stopOpacity="0.0" />
+                        {/* Area Gradient */}
+                        <linearGradient id="fluxFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.5" /> {/* Sky Blue */}
+                            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
                         </linearGradient>
-                        {/* Glow filter for the dot */}
-                        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
+                        
+                        {/* Stroke Gradient */}
+                        <linearGradient id="fluxStroke" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#0ea5e9" />  {/* Sky Blue */}
+                            <stop offset="50%" stopColor="#22d3ee" />  {/* Cyan */}
+                            <stop offset="100%" stopColor="#0ea5e9" />
+                        </linearGradient>
+
+                        <mask id="gridMask">
+                             <rect width="100" height="100" fill="white" />
+                             {/* Horizontal Grid lines cut out */}
+                             {[0, 25, 50, 75].map(y => (
+                                 <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="black" strokeWidth="0.5" />
+                             ))}
+                        </mask>
                     </defs>
-                    
+
+                    {/* Background Grid Pattern */}
+                    <pattern id="smallGrid" width="2" height="10" patternUnits="userSpaceOnUse">
+                         <path d="M 2 0 L 0 0 0 2" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>
+                    </pattern>
+                    <rect width="100" height="100" fill="url(#smallGrid)" />
+
+                    {/* Area Fill */}
                     <motion.path 
-                        d={areaPath} 
-                        fill="url(#yearGradient)" 
+                        d={areaD} 
+                        fill="url(#fluxFill)" 
+                        mask="url(#gridMask)"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.8 }}
                     />
                     
+                    {/* The Main Line */}
                     <motion.path 
-                        d={linePath} 
+                        d={lineD} 
                         fill="none" 
-                        stroke="rgb(188, 19, 254)" 
+                        stroke="url(#fluxStroke)" 
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                        className="drop-shadow-[0_0_5px_rgba(14,165,233,0.5)]"
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ pathLength: 1, opacity: 1 }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
                     />
 
-                    {/* Active Point Indicator - Enhanced Halo Dot */}
-                    {activeData && (
-                        <g>
-                            {/* Outer Halo */}
-                            <circle 
-                                cx={activeData.point[0]} 
-                                cy={activeData.point[1]} 
-                                r="4" 
-                                fill="rgb(188, 19, 254)" 
-                                fillOpacity="0.3"
-                                className="animate-pulse"
-                            />
-                            {/* Inner White Dot with border */}
-                            <circle 
-                                cx={activeData.point[0]} 
-                                cy={activeData.point[1]} 
-                                r="2" 
-                                fill="white"
-                                stroke="rgb(188, 19, 254)"
-                                strokeWidth="0.5"
-                                filter="url(#glow)"
-                            />
-                        </g>
-                    )}
+                    {/* Active State Overlay */}
+                    <AnimatePresence>
+                        {activePoint && (
+                            <>
+                                {/* Vertical Laser Scanner */}
+                                <motion.line
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    x1={activePoint.x} y1="0"
+                                    x2={activePoint.x} y2="100"
+                                    stroke="#38bdf8"
+                                    strokeWidth="0.2"
+                                />
+                                {/* Bottom highlight at base */}
+                                <motion.rect
+                                     initial={{ opacity: 0 }}
+                                     animate={{ opacity: 0.3 }}
+                                     exit={{ opacity: 0 }}
+                                     x={activePoint.x - 2}
+                                     y="0"
+                                     width="4"
+                                     height="100"
+                                     fill="url(#fluxFill)"
+                                />
+
+                                {/* Intersection Dot - Refined */}
+                                <motion.circle 
+                                    initial={{ r: 0 }}
+                                    animate={{ r: 3.5 }} 
+                                    exit={{ r: 0 }}
+                                    cx={activePoint.x} 
+                                    cy={activePoint.y} 
+                                    fill="#22d3ee" 
+                                    stroke="white"
+                                    strokeWidth="1.5"
+                                    className="drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
+                                />
+                            </>
+                        )}
+                    </AnimatePresence>
                  </svg>
-
-                 {/* Active Tooltip */}
-                 <AnimatePresence>
-                    {activeData && (
-                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.9 }}
-                            transition={{ duration: 0.05 }}
-                            className="absolute z-20 pointer-events-none flex items-center"
-                            style={{ 
-                                top: `${(activeData.point[1] / 50) * 100}%`,
-                                left: activeData.isTooltipRight ? `${activeData.point[0]}%` : 'auto',
-                                right: activeData.isTooltipRight ? 'auto' : `${100 - activeData.point[0]}%`,
-                                transform: 'translateY(-50%)',
-                                marginLeft: activeData.isTooltipRight ? '12px' : 0,
-                                marginRight: activeData.isTooltipRight ? 0 : '12px',
-                            }}
-                         >
-                            {/* Arrow */}
-                            {activeData.isTooltipRight && (
-                                <div className="w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-slate-800/95 mr-[-1px]"></div>
-                            )}
-
-                            {/* Content Box */}
-                            <div className="bg-slate-800/95 backdrop-blur-md border border-neon-purple/30 rounded-lg px-3 py-2 shadow-xl flex flex-col items-start min-w-[70px]">
-                                <div className="text-sm font-bold text-white leading-none mb-1">{activeData.year}</div>
-                                <div className="text-[10px] text-neon-purple uppercase font-semibold tracking-wide whitespace-nowrap">{activeData.count} titles</div>
-                            </div>
-
-                            {/* Arrow */}
-                            {!activeData.isTooltipRight && (
-                                <div className="w-0 h-0 border-y-[6px] border-y-transparent border-l-[6px] border-l-slate-800/95 ml-[-1px]"></div>
-                            )}
-                         </motion.div>
-                    )}
-                 </AnimatePresence>
-                 
-                 {/* X Axis Labels */}
-                 <div className={`absolute bottom-0 left-0 text-[10px] font-mono text-slate-500 translate-y-full pt-1 md:pt-2 transition-opacity duration-300 ${activeX && activeX < 15 ? 'opacity-20' : 'opacity-100'}`}>
-                     {minYear}
-                 </div>
-                 <div className={`absolute bottom-0 right-0 text-[10px] font-mono text-slate-500 translate-y-full pt-1 md:pt-2 transition-opacity duration-300 ${activeX && activeX > 85 ? 'opacity-20' : 'opacity-100'}`}>
-                     {maxYear}
-                 </div>
-             </div>
+            </div>
         </div>
     );
 }
@@ -565,7 +610,7 @@ const Ratings: React.FC = () => {
                 <div className="absolute inset-0 z-0">
                     <img 
                         src={spotlightItem.pictureUrl} 
-                        alt="Spotlight" 
+                        alt={spotlightItem.title} 
                         className="w-full h-full object-cover object-top opacity-30 blur-sm scale-105" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
@@ -687,7 +732,7 @@ const Ratings: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Rating Dist */}
+                        {/* Rating Dist - Force full width on Tablet/Mobile to prevent squishing */}
                         <div className="lg:col-span-1">
                             <div className="flex items-center gap-2 mb-4 text-sm text-slate-400">
                                 <BarChart3 size={16} />
@@ -696,7 +741,7 @@ const Ratings: React.FC = () => {
                             <RatingDistributionChart data={data} />
                         </div>
 
-                        {/* Year Dist */}
+                        {/* Year Dist - Force full width on Tablet/Mobile to prevent squishing */}
                         <div className="lg:col-span-1">
                             <div className="flex items-center gap-2 mb-4 text-sm text-slate-400">
                                 <Clock size={16} />
