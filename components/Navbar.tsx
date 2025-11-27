@@ -69,10 +69,10 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, currentView }) => {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`fixed w-full z-50 transition-all duration-300 ${
+        className={`fixed w-full z-50 transition-all duration-300 border-b ${
           scrolled || currentView === 'ratings'
-            ? 'bg-slate-950/80 backdrop-blur-md border-b border-slate-800/60 shadow-lg shadow-neon-purple/5' 
-            : 'bg-transparent py-2 md:py-4'
+            ? 'bg-slate-950/80 backdrop-blur-md border-slate-800/60 shadow-lg shadow-neon-purple/5' 
+            : 'bg-transparent border-transparent py-2 md:py-4'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

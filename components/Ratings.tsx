@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { Search, Star, ExternalLink, Activity, ArrowUpRight, BarChart3, Clock, Filter, X, Calendar, User } from 'lucide-react';
+import { Search, Star, ExternalLink, Activity, ArrowUpRight, BarChart3, Filter, X, User } from 'lucide-react';
 import Section from './Section';
 
 // CSV path
@@ -21,6 +21,84 @@ interface RatingItem {
   director: string;
   runtime: number;
 }
+
+// --- Theme Helper ---
+const getRatingTheme = (rating: number) => {
+  const r = Math.round(rating);
+  switch (r) {
+    case 10: return {
+      text: 'text-fuchsia-400',
+      bg: 'bg-fuchsia-500',
+      gradient: 'bg-gradient-to-t from-fuchsia-900 to-fuchsia-500',
+      activeGradient: 'bg-gradient-to-t from-fuchsia-800 to-fuchsia-400',
+      glow: 'bg-fuchsia-500/30'
+    };
+    case 9: return {
+      text: 'text-violet-400',
+      bg: 'bg-violet-500',
+      gradient: 'bg-gradient-to-t from-violet-900 to-violet-500',
+      activeGradient: 'bg-gradient-to-t from-violet-800 to-violet-400',
+      glow: 'bg-violet-500/30'
+    };
+    case 8: return {
+      text: 'text-indigo-400',
+      bg: 'bg-indigo-500',
+      gradient: 'bg-gradient-to-t from-indigo-900 to-indigo-500',
+      activeGradient: 'bg-gradient-to-t from-indigo-800 to-indigo-400',
+      glow: 'bg-indigo-500/30'
+    };
+    case 7: return {
+      text: 'text-blue-400',
+      bg: 'bg-blue-500',
+      gradient: 'bg-gradient-to-t from-blue-900 to-blue-500',
+      activeGradient: 'bg-gradient-to-t from-blue-800 to-blue-400',
+      glow: 'bg-blue-500/30'
+    };
+    case 6: return {
+      text: 'text-cyan-400',
+      bg: 'bg-cyan-500',
+      gradient: 'bg-gradient-to-t from-cyan-900 to-cyan-500',
+      activeGradient: 'bg-gradient-to-t from-cyan-800 to-cyan-400',
+      glow: 'bg-cyan-500/30'
+    };
+    case 5: return {
+      text: 'text-teal-400',
+      bg: 'bg-teal-500',
+      gradient: 'bg-gradient-to-t from-teal-900 to-teal-500',
+      activeGradient: 'bg-gradient-to-t from-teal-800 to-teal-400',
+      glow: 'bg-teal-500/30'
+    };
+    case 4: return {
+      text: 'text-emerald-400',
+      bg: 'bg-emerald-500',
+      gradient: 'bg-gradient-to-t from-emerald-900 to-emerald-500',
+      activeGradient: 'bg-gradient-to-t from-emerald-800 to-emerald-400',
+      glow: 'bg-emerald-500/30'
+    };
+    case 3: return {
+      text: 'text-yellow-400',
+      bg: 'bg-yellow-500',
+      gradient: 'bg-gradient-to-t from-yellow-900 to-yellow-500',
+      activeGradient: 'bg-gradient-to-t from-yellow-800 to-yellow-400',
+      glow: 'bg-yellow-500/30'
+    };
+    case 2: return {
+      text: 'text-orange-400',
+      bg: 'bg-orange-500',
+      gradient: 'bg-gradient-to-t from-orange-900 to-orange-500',
+      activeGradient: 'bg-gradient-to-t from-orange-800 to-orange-400',
+      glow: 'bg-orange-500/30'
+    };
+    case 1: 
+    default: return {
+      text: 'text-red-400',
+      bg: 'bg-red-500',
+      gradient: 'bg-gradient-to-t from-red-900 to-red-500',
+      activeGradient: 'bg-gradient-to-t from-red-800 to-red-400',
+      glow: 'bg-red-500/30'
+    };
+  }
+};
 
 // --- 3D Tilt Card Component ---
 const TiltCard = ({ children, className, glowColor }: { children?: React.ReactNode, className?: string, glowColor: string }) => {
@@ -102,27 +180,7 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
 
                      const percentage = counts.max > 0 ? (count / counts.max) * 100 : 0;
                      const isHovered = hoveredIndex === rating;
-
-                     // Determine Colors - Cleaner, more cohesive palette
-                     let barColor = "bg-slate-700";
-                     let activeColor = "bg-slate-500";
-                     
-                     if (rating === 10) {
-                         barColor = "bg-gradient-to-t from-fuchsia-900 to-fuchsia-500";
-                         activeColor = "bg-gradient-to-t from-fuchsia-800 to-fuchsia-400";
-                     } else if (rating >= 8) {
-                         barColor = "bg-gradient-to-t from-emerald-900 to-emerald-500";
-                         activeColor = "bg-gradient-to-t from-emerald-800 to-emerald-400";
-                     } else if (rating >= 6) {
-                         barColor = "bg-gradient-to-t from-blue-900 to-blue-500";
-                         activeColor = "bg-gradient-to-t from-blue-800 to-blue-400";
-                     } else if (rating >= 4) {
-                         barColor = "bg-gradient-to-t from-amber-900 to-amber-500";
-                         activeColor = "bg-gradient-to-t from-amber-800 to-amber-400";
-                     } else {
-                        barColor = "bg-gradient-to-t from-red-900 to-red-500";
-                        activeColor = "bg-gradient-to-t from-red-800 to-red-400";
-                     }
+                     const theme = getRatingTheme(rating);
 
                      return (
                          <div 
@@ -148,7 +206,7 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
                                  
                                  {/* The Bar */}
                                  <div 
-                                    className={`w-full rounded-t-sm transition-all duration-300 ${isHovered ? activeColor : barColor} ${isHovered ? 'shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'opacity-80'}`}
+                                    className={`w-full rounded-t-sm transition-all duration-300 ${isHovered ? theme.activeGradient : theme.gradient} ${isHovered ? 'shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'opacity-80'}`}
                                     style={{ height: `${Math.max(percentage * 0.75, 2)}%` }} // Scale max height to 75% container
                                  ></div>
                              </div>
@@ -162,18 +220,15 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
                 {counts.counts.map((_, rating) => {
                     if (rating === 0) return null;
                     const isHovered = hoveredIndex === rating;
+                    const theme = getRatingTheme(rating);
                     
-                    let axisColor = "text-slate-600";
+                    let axisClass = "text-slate-600";
                     if (isHovered) {
-                        if (rating === 10) axisColor = "text-fuchsia-400 font-bold scale-110";
-                        else if (rating >= 8) axisColor = "text-emerald-400 font-bold scale-110";
-                        else if (rating >= 6) axisColor = "text-blue-400 font-bold scale-110";
-                        else if (rating >= 4) axisColor = "text-amber-400 font-bold scale-110";
-                        else axisColor = "text-red-400 font-bold scale-110";
+                        axisClass = `${theme.text} font-bold scale-110`;
                     }
 
                     return (
-                        <div key={rating} className={`flex-1 text-center text-[9px] md:text-[10px] font-mono transition-all duration-200 ${axisColor}`}>
+                        <div key={rating} className={`flex-1 text-center text-[9px] md:text-[10px] font-mono transition-all duration-200 ${axisClass}`}>
                             {rating}
                         </div>
                     );
@@ -182,255 +237,6 @@ const RatingDistributionChart = ({ data }: { data: RatingItem[] }) => {
         </div>
     );
 };
-
-// --- Smoothed Line Helpers ---
-const line = (pointA: number[], pointB: number[]) => {
-  const lengthX = pointB[0] - pointA[0];
-  const lengthY = pointB[1] - pointA[1];
-  return {
-    length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
-    angle: Math.atan2(lengthY, lengthX)
-  };
-};
-
-const controlPoint = (current: number[], previous: number[], next: number[], reverse?: boolean) => {
-  const p = previous || current;
-  const n = next || current;
-  const smoothing = 0.15; // Adjusted smoothing
-  const o = line(p, n);
-  const angle = o.angle + (reverse ? Math.PI : 0);
-  const length = o.length * smoothing;
-  const x = current[0] + Math.cos(angle) * length;
-  const y = current[1] + Math.sin(angle) * length;
-  return [x, y];
-};
-
-const bezierCommand = (point: number[], i: number, a: number[][]) => {
-  const [cpsX, cpsY] = controlPoint(a[i - 1], a[i - 2], point);
-  const [cpeX, cpeY] = controlPoint(point, a[i - 1], a[i + 1], true);
-  return `C ${cpsX.toFixed(2)},${cpsY.toFixed(2)} ${cpeX.toFixed(2)},${cpeY.toFixed(2)} ${point[0].toFixed(2)},${point[1].toFixed(2)}`;
-};
-
-const svgPath = (points: number[][]) => {
-  return points.reduce((acc, point, i, a) => i === 0
-    ? `M ${point[0].toFixed(2)},${point[1].toFixed(2)}`
-    : `${acc} ${bezierCommand(point, i, a)}`
-  , '');
-};
-
-const YearDistributionChart = ({ data }: { data: RatingItem[] }) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [hoveredYear, setHoveredYear] = useState<number | null>(null);
-
-    // 1. Process Data
-    const { points, minYear, maxYear, yearMap } = useMemo(() => {
-        if (data.length === 0) return { points: [], minYear: 0, maxYear: 0, yearMap: {} };
-        
-        const map: Record<number, number> = {};
-        let min = new Date().getFullYear();
-        let max = 0;
-        let peak = 0;
-
-        data.forEach(d => {
-            const y = d.releaseDate ? parseInt(d.releaseDate.split('-')[0]) : d.year;
-            if (y && y > 1900) {
-                map[y] = (map[y] || 0) + 1;
-                if (map[y] > peak) peak = map[y];
-                if (y < min) min = y;
-                if (y > max) max = y;
-            }
-        });
-        
-        // Pad the range slightly
-        min -= 2; 
-        max += 1;
-
-        if (max === 0) return { points: [], minYear: 0, maxYear: 0, yearMap: {} };
-
-        // Generate points for SVG path (0-100 coordinate space)
-        const pts: number[][] = [];
-        const width = 100;
-        const height = 100; // Use 100x100 space for easier mental mapping
-
-        for (let y = min; y <= max; y++) {
-            const count = map[y] || 0;
-            const x = ((y - min) / (max - min)) * width;
-            // Leave 10% padding at top
-            const normalizedHeight = (count / peak) * 80; 
-            const yPos = 100 - normalizedHeight;
-            pts.push([x, yPos]);
-        }
-        return { points: pts, minYear: min, maxYear: max, yearMap: map };
-    }, [data]);
-
-    // 2. Interaction Handler
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (!containerRef.current || !minYear) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const ratio = Math.max(0, Math.min(1, x / rect.width));
-        
-        const totalYears = maxYear - minYear;
-        const estimatedYear = Math.round(minYear + (ratio * totalYears));
-        
-        setHoveredYear(estimatedYear);
-    };
-
-    // 3. Active Point Calculation
-    const activePoint = useMemo(() => {
-        if (!hoveredYear || !minYear) return null;
-        
-        const count = yearMap[hoveredYear] || 0;
-        
-        // Find x coordinate for the laser
-        const xPercent = ((hoveredYear - minYear) / (maxYear - minYear)) * 100;
-        
-        // Find the y position on the curve for intersection dot
-        // Simple linear interpolation between points for smoothing if needed, 
-        // but finding the closest point is good enough for visual feedback
-        const pointIndex = hoveredYear - minYear;
-        const point = points[pointIndex];
-        const yPercent = point ? point[1] : 100;
-
-        return { x: xPercent, y: yPercent, count, year: hoveredYear };
-    }, [hoveredYear, points, minYear, yearMap, maxYear]);
-
-    if (points.length === 0) return <div className="h-32 flex items-center justify-center text-slate-500 text-xs">No Data</div>;
-
-    const lineD = svgPath(points);
-    const areaD = `${lineD} L 100,100 L 0,100 Z`; 
-
-    return (
-        <div className="w-full h-32 md:h-36 relative flex flex-col">
-            {/* HUD Header - Fixed info display */}
-            <div className="flex justify-between items-center mb-2 px-1 h-6">
-                <div className="flex gap-4 text-xs font-mono">
-                   <div className="flex items-center gap-2">
-                       <span className="text-slate-500 uppercase tracking-widest text-[9px]">Year</span>
-                       <span className={`font-bold transition-colors ${activePoint ? 'text-neon-blue' : 'text-slate-300'}`}>
-                           {activePoint ? activePoint.year : '—'}
-                       </span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                       <span className="text-slate-500 uppercase tracking-widest text-[9px]">Count</span>
-                       <span className={`font-bold transition-colors ${activePoint ? 'text-white' : 'text-slate-300'}`}>
-                           {activePoint ? activePoint.count : '—'}
-                       </span>
-                   </div>
-                </div>
-                {/* Year Range Label */}
-                <div className="text-[9px] text-slate-600 font-mono">
-                    {minYear} — {maxYear}
-                </div>
-            </div>
-
-            {/* Chart Container */}
-            <div 
-                className="flex-1 relative cursor-crosshair select-none group touch-none bg-slate-900/30 rounded-lg border border-slate-800/50 overflow-hidden"
-                ref={containerRef}
-                onMouseMove={handleMouseMove}
-                onMouseLeave={() => setHoveredYear(null)}
-            >
-                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                    <defs>
-                        {/* Area Gradient */}
-                        <linearGradient id="fluxFill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.5" /> {/* Sky Blue */}
-                            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
-                        </linearGradient>
-                        
-                        {/* Stroke Gradient */}
-                        <linearGradient id="fluxStroke" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#0ea5e9" />  {/* Sky Blue */}
-                            <stop offset="50%" stopColor="#22d3ee" />  {/* Cyan */}
-                            <stop offset="100%" stopColor="#0ea5e9" />
-                        </linearGradient>
-
-                        <mask id="gridMask">
-                             <rect width="100" height="100" fill="white" />
-                             {/* Horizontal Grid lines cut out */}
-                             {[0, 25, 50, 75].map(y => (
-                                 <line key={y} x1="0" y1={y} x2="100" y2={y} stroke="black" strokeWidth="0.5" />
-                             ))}
-                        </mask>
-                    </defs>
-
-                    {/* Background Grid Pattern */}
-                    <pattern id="smallGrid" width="2" height="10" patternUnits="userSpaceOnUse">
-                         <path d="M 2 0 L 0 0 0 2" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>
-                    </pattern>
-                    <rect width="100" height="100" fill="url(#smallGrid)" />
-
-                    {/* Area Fill */}
-                    <motion.path 
-                        d={areaD} 
-                        fill="url(#fluxFill)" 
-                        mask="url(#gridMask)"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.8 }}
-                    />
-                    
-                    {/* The Main Line */}
-                    <motion.path 
-                        d={lineD} 
-                        fill="none" 
-                        stroke="url(#fluxStroke)" 
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="drop-shadow-[0_0_5px_rgba(14,165,233,0.5)]"
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 1 }}
-                        transition={{ duration: 1.2, ease: "easeOut" }}
-                    />
-
-                    {/* Active State Overlay */}
-                    <AnimatePresence>
-                        {activePoint && (
-                            <>
-                                {/* Vertical Laser Scanner */}
-                                <motion.line
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    x1={activePoint.x} y1="0"
-                                    x2={activePoint.x} y2="100"
-                                    stroke="#38bdf8"
-                                    strokeWidth="0.2"
-                                />
-                                {/* Bottom highlight at base */}
-                                <motion.rect
-                                     initial={{ opacity: 0 }}
-                                     animate={{ opacity: 0.3 }}
-                                     exit={{ opacity: 0 }}
-                                     x={activePoint.x - 2}
-                                     y="0"
-                                     width="4"
-                                     height="100"
-                                     fill="url(#fluxFill)"
-                                />
-
-                                {/* Intersection Dot - Refined */}
-                                <motion.circle 
-                                    initial={{ r: 0 }}
-                                    animate={{ r: 3.5 }} 
-                                    exit={{ r: 0 }}
-                                    cx={activePoint.x} 
-                                    cy={activePoint.y} 
-                                    fill="#22d3ee" 
-                                    stroke="white"
-                                    strokeWidth="1.5"
-                                    className="drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]"
-                                />
-                            </>
-                        )}
-                    </AnimatePresence>
-                 </svg>
-            </div>
-        </div>
-    );
-}
 
 const Ratings: React.FC = () => {
   const [data, setData] = useState<RatingItem[]>([]);
@@ -564,29 +370,6 @@ const Ratings: React.FC = () => {
     }));
   };
 
-  const getRatingColor = (rating: number) => {
-    if (rating === 10) return 'text-yellow-400';
-    if (rating >= 8) return 'text-emerald-400';
-    if (rating >= 6) return 'text-blue-400';
-    if (rating >= 4) return 'text-indigo-400';
-    return 'text-slate-400';
-  };
-
-  const getRatingBg = (rating: number) => {
-    if (rating === 10) return 'bg-yellow-500';
-    if (rating >= 8) return 'bg-emerald-500';
-    if (rating >= 6) return 'bg-blue-500';
-    if (rating >= 4) return 'bg-indigo-500';
-    return 'bg-slate-600';
-  }
-
-  const getGlowColor = (rating: number) => {
-    if (rating === 10) return 'bg-yellow-500/30';
-    if (rating >= 8) return 'bg-emerald-500/30';
-    if (rating >= 6) return 'bg-blue-500/30';
-    return 'bg-indigo-500/20';
-  }
-
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden selection:bg-neon-pink/30">
         
@@ -611,7 +394,7 @@ const Ratings: React.FC = () => {
                     <img 
                         src={spotlightItem.pictureUrl} 
                         alt={spotlightItem.title} 
-                        className="w-full h-full object-cover object-top opacity-30 blur-sm scale-105" 
+                        className="w-full h-full object-cover object-top opacity-30 blur-[2px] scale-105" 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/50 to-transparent"></div>
@@ -636,7 +419,7 @@ const Ratings: React.FC = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="flex items-center gap-3"
                             >
-                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded border bg-black/40 backdrop-blur-md ${getRatingColor(spotlightItem.myRating)} border-white/10`}>
+                                <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded border bg-black/40 backdrop-blur-md ${getRatingTheme(spotlightItem.myRating).text} border-white/10`}>
                                     Spotlight
                                 </span>
                             </motion.div>
@@ -675,7 +458,7 @@ const Ratings: React.FC = () => {
                             >
                                 <div className="flex items-center gap-3 bg-white/5 px-3 md:px-4 py-2 rounded-lg border border-white/10 backdrop-blur-sm">
                                     <span className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-semibold">My Rating</span>
-                                    <div className={`text-xl md:text-2xl font-black ${getRatingColor(spotlightItem.myRating)}`}>
+                                    <div className={`text-xl md:text-2xl font-black ${getRatingTheme(spotlightItem.myRating).text}`}>
                                         {spotlightItem.myRating}<span className="text-sm text-slate-500 font-medium">/10</span>
                                     </div>
                                 </div>
@@ -710,7 +493,7 @@ const Ratings: React.FC = () => {
                          {/* Background glow effects can go here if needed */}
                     </div>
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative z-10">
                          {/* Stats Column */}
                         <div className="space-y-4 md:space-y-6">
                             <div className="flex items-center gap-3 mb-2">
@@ -733,21 +516,12 @@ const Ratings: React.FC = () => {
                         </div>
 
                         {/* Rating Dist - Force full width on Tablet/Mobile to prevent squishing */}
-                        <div className="lg:col-span-1">
+                        <div className="">
                             <div className="flex items-center gap-2 mb-4 text-sm text-slate-400">
                                 <BarChart3 size={16} />
                                 <span className="uppercase tracking-wider font-bold text-xs">Score Distribution</span>
                             </div>
                             <RatingDistributionChart data={data} />
-                        </div>
-
-                        {/* Year Dist - Force full width on Tablet/Mobile to prevent squishing */}
-                        <div className="lg:col-span-1">
-                            <div className="flex items-center gap-2 mb-4 text-sm text-slate-400">
-                                <Clock size={16} />
-                                <span className="uppercase tracking-wider font-bold text-xs">Release Timeline</span>
-                            </div>
-                            <YearDistributionChart data={data} />
                         </div>
                     </div>
                 </div>
@@ -833,6 +607,7 @@ const Ratings: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-4 gap-y-6 px-4 pb-20 max-w-7xl mx-auto">
                 <AnimatePresence mode="popLayout">
                     {filteredData.map((item) => {
+                        const theme = getRatingTheme(item.myRating);
                         return (
                             <motion.div
                                 layout
@@ -846,7 +621,7 @@ const Ratings: React.FC = () => {
                                 key={item.id}
                                 className="group col-span-1"
                             >
-                                <TiltCard glowColor={getGlowColor(item.myRating)}>
+                                <TiltCard glowColor={theme.glow}>
                                     <div className="flex flex-col h-full bg-slate-900/50 rounded-xl border border-slate-800 group-hover:border-slate-600/50 overflow-hidden transition-colors duration-300 shadow-xl shadow-black/50">
                                         
                                         {/* Card Top: Poster & Badge */}
@@ -862,7 +637,7 @@ const Ratings: React.FC = () => {
                                             {/* My Rating Badge (Top Left Overlay) - Updated for clarity with ICON */}
                                             <div className="absolute top-2 left-2 z-10">
                                                 <div className="flex items-center bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-full shadow-lg p-1 pr-2.5">
-                                                    <div className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full ${getRatingBg(item.myRating)} text-white mr-1.5 shadow-inner`}>
+                                                    <div className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full ${theme.bg} text-white mr-1.5 shadow-inner`}>
                                                         <User size={12} strokeWidth={3} />
                                                     </div>
                                                     <span className={`text-sm md:text-base font-black text-white`}>{item.myRating}</span>
