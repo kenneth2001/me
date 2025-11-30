@@ -4,7 +4,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    // Use VITE_BASE environment variable if set (for GitHub Pages), otherwise default to '/'
+    const base = process.env.VITE_BASE || '/';
     return {
+      base,
       server: {
         port: 3000,
         host: '0.0.0.0',
