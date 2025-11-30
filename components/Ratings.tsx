@@ -10,7 +10,7 @@ interface RatingItem {
   id: string;
   myRating: number;
   dateRated: string;
-  releaseDate: string; // Added release date
+  releaseDate: string;
   title: string;
   url: string;
   type: string;
@@ -28,63 +28,99 @@ const getRatingTheme = (rating: number) => {
   switch (r) {
     case 10: return {
       text: 'text-fuchsia-400',
+      groupHoverText: 'group-hover:text-fuchsia-400',
       bg: 'bg-fuchsia-500',
+      border: 'border-fuchsia-500/50',
+      hoverBorder: 'group-hover:border-fuchsia-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(217,70,239,0.4)]',
       gradient: 'bg-gradient-to-t from-fuchsia-900 to-fuchsia-500',
       activeGradient: 'bg-gradient-to-t from-fuchsia-800 to-fuchsia-400',
       glow: 'bg-fuchsia-500/30'
     };
     case 9: return {
       text: 'text-violet-400',
+      groupHoverText: 'group-hover:text-violet-400',
       bg: 'bg-violet-500',
+      border: 'border-violet-500/50',
+      hoverBorder: 'group-hover:border-violet-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(139,92,246,0.4)]',
       gradient: 'bg-gradient-to-t from-violet-900 to-violet-500',
       activeGradient: 'bg-gradient-to-t from-violet-800 to-violet-400',
       glow: 'bg-violet-500/30'
     };
     case 8: return {
       text: 'text-indigo-400',
+      groupHoverText: 'group-hover:text-indigo-400',
       bg: 'bg-indigo-500',
+      border: 'border-indigo-500/50',
+      hoverBorder: 'group-hover:border-indigo-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]',
       gradient: 'bg-gradient-to-t from-indigo-900 to-indigo-500',
       activeGradient: 'bg-gradient-to-t from-indigo-800 to-indigo-400',
       glow: 'bg-indigo-500/30'
     };
     case 7: return {
       text: 'text-blue-400',
+      groupHoverText: 'group-hover:text-blue-400',
       bg: 'bg-blue-500',
+      border: 'border-blue-500/50',
+      hoverBorder: 'group-hover:border-blue-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]',
       gradient: 'bg-gradient-to-t from-blue-900 to-blue-500',
       activeGradient: 'bg-gradient-to-t from-blue-800 to-blue-400',
       glow: 'bg-blue-500/30'
     };
     case 6: return {
       text: 'text-cyan-400',
+      groupHoverText: 'group-hover:text-cyan-400',
       bg: 'bg-cyan-500',
+      border: 'border-cyan-500/50',
+      hoverBorder: 'group-hover:border-cyan-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]',
       gradient: 'bg-gradient-to-t from-cyan-900 to-cyan-500',
       activeGradient: 'bg-gradient-to-t from-cyan-800 to-cyan-400',
       glow: 'bg-cyan-500/30'
     };
     case 5: return {
       text: 'text-teal-400',
+      groupHoverText: 'group-hover:text-teal-400',
       bg: 'bg-teal-500',
+      border: 'border-teal-500/50',
+      hoverBorder: 'group-hover:border-teal-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(20,184,166,0.4)]',
       gradient: 'bg-gradient-to-t from-teal-900 to-teal-500',
       activeGradient: 'bg-gradient-to-t from-teal-800 to-teal-400',
       glow: 'bg-teal-500/30'
     };
     case 4: return {
       text: 'text-emerald-400',
+      groupHoverText: 'group-hover:text-emerald-400',
       bg: 'bg-emerald-500',
+      border: 'border-emerald-500/50',
+      hoverBorder: 'group-hover:border-emerald-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]',
       gradient: 'bg-gradient-to-t from-emerald-900 to-emerald-500',
       activeGradient: 'bg-gradient-to-t from-emerald-800 to-emerald-400',
       glow: 'bg-emerald-500/30'
     };
     case 3: return {
       text: 'text-yellow-400',
+      groupHoverText: 'group-hover:text-yellow-400',
       bg: 'bg-yellow-500',
+      border: 'border-yellow-500/50',
+      hoverBorder: 'group-hover:border-yellow-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(234,179,8,0.4)]',
       gradient: 'bg-gradient-to-t from-yellow-900 to-yellow-500',
       activeGradient: 'bg-gradient-to-t from-yellow-800 to-yellow-400',
       glow: 'bg-yellow-500/30'
     };
     case 2: return {
       text: 'text-orange-400',
+      groupHoverText: 'group-hover:text-orange-400',
       bg: 'bg-orange-500',
+      border: 'border-orange-500/50',
+      hoverBorder: 'group-hover:border-orange-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]',
       gradient: 'bg-gradient-to-t from-orange-900 to-orange-500',
       activeGradient: 'bg-gradient-to-t from-orange-800 to-orange-400',
       glow: 'bg-orange-500/30'
@@ -92,7 +128,11 @@ const getRatingTheme = (rating: number) => {
     case 1: 
     default: return {
       text: 'text-red-400',
+      groupHoverText: 'group-hover:text-red-400',
       bg: 'bg-red-500',
+      border: 'border-red-500/50',
+      hoverBorder: 'group-hover:border-red-500',
+      hoverShadow: 'group-hover:shadow-[0_0_25px_rgba(239,68,68,0.4)]',
       gradient: 'bg-gradient-to-t from-red-900 to-red-500',
       activeGradient: 'bg-gradient-to-t from-red-800 to-red-400',
       glow: 'bg-red-500/30'
@@ -139,7 +179,7 @@ const TiltCard = ({ children, className, glowColor }: { children?: React.ReactNo
         >
             <div 
                 style={{ transform: "translateZ(0px)" }} 
-                className={`absolute inset-0 rounded-xl transition-opacity duration-500 opacity-0 group-hover:opacity-40 ${glowColor} blur-2xl -z-10`} 
+                className={`absolute inset-0 rounded-xl transition-opacity duration-500 opacity-0 group-hover:opacity-60 ${glowColor} blur-2xl -z-10`} 
             />
             {children}
         </motion.div>
@@ -505,7 +545,7 @@ const Ratings: React.FC = () => {
                                     href={spotlightItem.url} 
                                     target="_blank" 
                                     rel="noreferrer"
-                                    className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-neon-purple/90 hover:bg-neon-purple text-white rounded-lg font-semibold shadow-lg shadow-neon-purple/20 transition-all hover:scale-105 text-xs md:text-sm"
+                                    className={`flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-slate-900 border ${getRatingTheme(spotlightItem.myRating).border.replace('/50', '')} ${getRatingTheme(spotlightItem.myRating).text} rounded-lg font-semibold shadow-lg transition-all hover:scale-105 text-xs md:text-sm hover:shadow-[0_0_15px_currentColor]`}
                                 >
                                     Details <ArrowUpRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                 </a>
@@ -525,6 +565,11 @@ const Ratings: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-7xl mx-auto mb-12 md:mb-16 px-0 md:px-4"
              >
+                {/* Descriptive Note */}
+                <p className="text-center text-slate-400 mb-6 text-sm font-medium">
+                    Tracking my personal ratings for Movies, TV Series, and Anime.
+                </p>
+
                 <div className="bg-slate-900/90 backdrop-blur-md border border-slate-800 md:rounded-xl p-4 md:p-8 shadow-2xl relative">
                     {/* Separate overflow container for background effects to allow tooltips to overflow */}
                     <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl">
@@ -660,8 +705,11 @@ const Ratings: React.FC = () => {
                                 className="group col-span-1"
                             >
                                 <TiltCard glowColor={theme.glow}>
-                                    <div className="flex flex-col h-full bg-slate-900/50 rounded-xl border border-slate-800 group-hover:border-slate-600/50 overflow-hidden transition-colors duration-300 shadow-xl shadow-black/50">
+                                    <div className={`flex flex-col h-full bg-slate-900/60 backdrop-blur-md rounded-xl border border-slate-800/80 ${theme.hoverBorder} transition-all duration-300 ${theme.hoverShadow} overflow-hidden group relative`}>
                                         
+                                        {/* Gradient Overlay for "sheen" */}
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
+
                                         {/* Card Top: Poster & Badge */}
                                         <div className="relative aspect-[2/3] w-full overflow-hidden bg-slate-950">
                                             {/* Poster Image */}
@@ -674,11 +722,11 @@ const Ratings: React.FC = () => {
                                             
                                             {/* My Rating Badge (Top Left Overlay) - Updated for clarity with ICON */}
                                             <div className="absolute top-2 left-2 z-10">
-                                                <div className="flex items-center bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-full shadow-lg p-1 pr-2.5">
-                                                    <div className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full ${theme.bg} text-white mr-1.5 shadow-inner`}>
+                                                <div className={`flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-xl border border-slate-800 ${theme.hoverBorder} transition-colors duration-300 rounded-full px-2.5 py-1 shadow-lg`}>
+                                                    <div className={`${theme.text}`}>
                                                         <User size={12} strokeWidth={3} />
                                                     </div>
-                                                    <span className={`text-sm md:text-base font-black text-white`}>{item.myRating}</span>
+                                                    <span className={`text-sm font-black text-white`}>{item.myRating}</span>
                                                 </div>
                                             </div>
 
@@ -690,27 +738,27 @@ const Ratings: React.FC = () => {
                                                 className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4 text-center z-20"
                                             >
                                                 <p className="text-slate-300 text-xs font-medium mb-3 line-clamp-3">{item.genres.join(', ')}</p>
-                                                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-white text-slate-950 rounded-full text-[10px] font-bold hover:scale-105 transition-transform">
+                                                <span className={`inline-flex items-center gap-1 px-3 py-1.5 bg-transparent border ${theme.border} ${theme.text} rounded-full text-[10px] font-bold hover:scale-105 transition-transform hover:shadow-[0_0_10px_currentColor] bg-slate-950`}>
                                                     View IMDb <ExternalLink size={10} />
                                                 </span>
                                             </a>
                                         </div>
 
                                         {/* Card Bottom: Footer Info */}
-                                        <div className="p-3 flex flex-col justify-between flex-1 gap-2 bg-slate-900">
+                                        <div className="p-3 flex flex-col justify-between flex-1 gap-2 bg-slate-900/40 relative z-10">
                                             
-                                            <h3 className="text-xs md:text-sm font-bold text-slate-100 leading-tight line-clamp-2" title={item.title}>
+                                            <h3 className={`text-xs md:text-sm font-bold text-slate-200 ${theme.groupHoverText} transition-colors duration-300 leading-tight line-clamp-2`} title={item.title}>
                                                 {item.title}
                                             </h3>
                                             
-                                            <div className="flex items-center justify-between border-t border-slate-800 pt-2 mt-auto">
+                                            <div className="flex items-center justify-between border-t border-slate-800/50 pt-2 mt-auto">
                                                 <div className="flex flex-col">
                                                     <span className="text-[9px] text-slate-500 font-semibold uppercase tracking-wider">{item.year}</span>
                                                     <span className="text-[9px] text-slate-400 font-medium">{item.type.replace(' Series', '').replace(' Mini', '')}</span>
                                                 </div>
                                                 
                                                 {/* IMDb Score - Updated for clarity */}
-                                                <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800" title="IMDb Rating">
+                                                <div className="flex items-center gap-1.5 bg-slate-950/50 px-2 py-1 rounded border border-slate-800/50" title="IMDb Rating">
                                                      <div className="bg-[#f5c518] text-black text-[9px] font-black px-1 rounded-[2px] leading-tight">IMDb</div>
                                                      <div className="flex items-center gap-1">
                                                         <Star size={10} className="text-yellow-500 fill-yellow-500" />

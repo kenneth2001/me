@@ -7,9 +7,9 @@ const Hero: React.FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 md:pt-24 md:pb-32 overflow-hidden bg-slate-950" id="about">
       
-      {/* Background Glow Orbs */}
-      <div className="absolute top-20 left-20 w-72 h-72 bg-primary-900/20 rounded-full blur-[100px] animate-pulse-slow"></div>
-      <div className="absolute bottom-40 right-20 w-96 h-96 bg-fuchsia-900/10 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+      {/* Background Glow Orbs - Enhanced */}
+      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-neon-purple/15 rounded-full blur-[120px] opacity-40 mix-blend-screen animate-pulse-slow"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-neon-blue/15 rounded-full blur-[100px] opacity-40 mix-blend-screen animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 w-full">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
@@ -35,7 +35,7 @@ const Hero: React.FC = () => {
               <div className="text-slate-400 mb-8 max-w-lg mx-auto lg:mx-0 flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2">
                  <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Multi-Agent Systems</span>
                  <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Deep Learning</span>
-                 <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Predictive Modeling</span>
+                 <span className="flex items-center group"><span className="text-neon-green mr-2 group-hover:drop-shadow-[0_0_5px_rgba(10,255,0,0.8)] transition-all">✓</span> Optimisation</span>
               </div>
               
               <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8">
@@ -102,7 +102,7 @@ const Hero: React.FC = () => {
                                 <span className="text-amber-300">"Deep Learning"</span>,
                             </code>
                             <code className="block pl-4">
-                                <span className="text-amber-300">"Data Analytics"</span>
+                                <span className="text-amber-300">"Optimisation"</span>
                             </code>
                             <code className="block mb-2">]</code>
 
