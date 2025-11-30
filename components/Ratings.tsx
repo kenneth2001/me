@@ -555,6 +555,7 @@ const Ratings: React.FC = () => {
                 </div>
              </motion.div>
         )}
+      </AnimatePresence>
 
         <Section id="ratings-gallery" className="relative z-10 -mt-6 md:-mt-16">
         
