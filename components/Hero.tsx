@@ -7,6 +7,9 @@ const Hero: React.FC = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 pb-16 md:pt-24 md:pb-32 overflow-hidden bg-slate-950" id="about">
       
+      {/* Noise Texture to fix gradient banding */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light pointer-events-none z-0"></div>
+
       {/* Background Glow Orbs - Enhanced */}
       <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-neon-purple/15 rounded-full blur-[120px] opacity-40 mix-blend-screen animate-pulse-slow"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-neon-blue/15 rounded-full blur-[100px] opacity-40 mix-blend-screen animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
